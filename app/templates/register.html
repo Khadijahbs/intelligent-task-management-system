@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Create Account | TaskFlow</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background: #f8f3ef;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        color: #4a3f3b;
+    }
+
+    .register-container {
+        width: 100%;
+        max-width: 450px;
+    }
+
+    .register-card {
+        background: #ffffff;
+        padding: 40px;
+        border-radius: 24px;
+        box-shadow: 0 10px 35px rgba(120, 90, 80, 0.12);
+    }
+
+    .brand {
+        text-align: center;
+        margin-bottom: 10px;
+        color: #b76e79;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #8b7d78;
+        margin-bottom: 30px;
+        font-size: 14px;
+    }
+
+    h1 {
+        text-align: center;
+        color: #4a3f3b;
+        font-size: 25px;
+        margin-bottom: 25px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #5c4c47;
+    }
+
+    input,
+    select {
+        width: 100%;
+        padding: 13px 14px;
+        border: 1px solid #e4d8d3;
+        border-radius: 12px;
+        font-size: 14px;
+        outline: none;
+        background: #fffdfc;
+        color: #4a3f3b;
+        transition: 0.2s ease;
+    }
+
+    input:focus,
+    select:focus {
+        border-color: #c98791;
+        box-shadow: 0 0 0 3px rgba(201, 135, 145, 0.12);
+    }
+
+    select {
+        cursor: pointer;
+    }
+
+    button {
+        width: 100%;
+        border: none;
+        padding: 14px;
+        margin-top: 8px;
+        border-radius: 12px;
+        background: #b76e79;
+        color: white;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+    button:hover {
+        background: #a65f6b;
+        transform: translateY(-1px);
+    }
+
+    .login-link {
+        text-align: center;
+        margin-top: 22px;
+        font-size: 14px;
+        color: #8b7d78;
+    }
+
+    .login-link a {
+        color: #b76e79;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 480px) {
+        .register-card {
+            padding: 30px 22px;
+        }
+    }
+
+    .password-container {
+    position: relative;
+    width: 100%;
+    }
+
+    .password-container input {
+        padding-right: 50px;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: auto;
+        margin: 0;
+        padding: 5px;
+        background: transparent;
+        color: #8b7d78;
+        font-size: 18px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .toggle-password:hover {
+        background: transparent;
+        color: #b76e79;
+        transform: translateY(-50%);
+    }
+</style>
+
+
+</head>
+
+<body>
+
+
+<div class="register-container">
+
+    <div class="register-card">
+
+        <div class="brand">TaskFlow 🌷</div>
+
+        <p class="subtitle">
+            Create your account and start managing your tasks smarter.
+        </p>
+
+        <h1>Create an Account</h1>
+
+        <form method="POST">
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Enter your username"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="gender">Gender</label>
+
+                <select name="gender" id="gender" required>
+                    <option value="">Select gender</option>
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+
+                <div class="password-container">
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Create a password"
+                    required
+                >
+
+                 <button
+                    type="button"
+                    class="toggle-password"
+                    onclick="togglePassword('password', this)"
+                 >
+                    👁️
+                 </button>
+                </div>
+            </div>
+
+            <button type="submit">Create Account</button>
+
+        </form>
+
+        <div class="login-link">
+            Already have an account?
+            <a href="{{ url_for('auth.login') }}">Login</a>
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+    function togglePassword(inputId, button) {
+        const passwordInput = document.getElementById(inputId);
+
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            button.textContent = "🙈";
+        } else {
+            passwordInput.type = "password";
+            button.textContent = "👁️";
+        }
+    }
+</script>
+
+</body>
+</html>

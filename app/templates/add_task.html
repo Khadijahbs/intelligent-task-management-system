@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Add Task | TaskFlow</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            background: #f8f5f2;
+            color: #4a403b;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .back {
+            display: inline-block;
+            margin-bottom: 20px;
+            text-decoration: none;
+            color: #8b6860;
+            font-size: 14px;
+        }
+
+        .card {
+            background: #fffdfb;
+            padding: 35px;
+            border-radius: 20px;
+            border: 1px solid #eee3dd;
+            box-shadow: 0 8px 30px rgba(92, 70, 60, 0.06);
+        }
+
+        h1 {
+            color: #463b37;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #948781;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #5c4e48;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 13px 15px;
+            border: 1px solid #dfd2cb;
+            border-radius: 12px;
+            background: #fff;
+            color: #4a403b;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #b28c82;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .reminder-box {
+            background: #faf5f2;
+            border: 1px solid #eee0d9;
+            border-radius: 14px;
+            padding: 18px;
+            margin-top: 5px;
+        }
+
+        .reminder-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .reminder-icon {
+            font-size: 18px;
+        }
+
+        .helper-text {
+            font-size: 12px;
+            color: #9a8d87;
+            margin-top: 7px;
+            line-height: 1.5;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 13px 22px;
+            border: none;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #9b746b;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #856158;
+        }
+
+        .btn-secondary {
+            background: #f0e5e0;
+            color: #6c554d;
+        }
+
+        @media (max-width: 600px) {
+
+            .container {
+                margin: 25px auto;
+            }
+
+            .card {
+                padding: 25px;
+            }
+
+            .row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <a
+            href="{{ url_for('auth.dashboard') }}"
+            class="back"
+        >
+            ← Back to Dashboard
+        </a>
+
+        <div class="card">
+
+            <h1>Create a New Task 🌷</h1>
+
+            <p class="subtitle">
+                Add a task and keep your day organized.
+            </p>
+
+
+            <form method="POST">
+
+                <!-- =========================
+                     TASK TITLE
+                ========================== -->
+
+                <div class="form-group">
+
+                    <label for="title">
+                        Task Title
+                    </label>
+
+                    <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        placeholder="e.g. Complete Chapter Two"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- =========================
+                     DESCRIPTION
+                ========================== -->
+
+                <div class="form-group">
+
+                    <label for="description">
+                        Description
+                    </label>
+
+                    <textarea
+                        id="description"
+                        name="description"
+                        placeholder="Add some details about this task..."
+                    ></textarea>
+
+                </div>
+
+
+                <!-- =========================
+                     IMPORTANCE + DEADLINE
+                ========================== -->
+
+                <div class="row">
+
+                    <div class="form-group">
+
+                        <label for="importance">
+                            Importance
+                        </label>
+
+                        <select
+                            name="importance"
+                            id="importance"
+                            required
+                        >
+
+                            <option value="Low">
+                                Low
+                            </option>
+
+                            <option
+                                value="Medium"
+                                selected
+                            >
+                                Medium
+                            </option>
+
+                            <option value="High">
+                                High
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="deadline">
+                            Deadline
+                        </label>
+
+                        <input
+                            type="datetime-local"
+                            id="deadline"
+                            name="deadline"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     REMINDER
+                ========================== -->
+
+                <div class="form-group">
+
+                    <div class="reminder-box">
+
+                        <label
+                            for="reminder_at"
+                            class="reminder-label"
+                        >
+
+                            <span class="reminder-icon">
+                                🔔
+                            </span>
+
+                            <span>
+                                Reminder
+                            </span>
+
+                        </label>
+
+                        <input
+                            type="datetime-local"
+                            id="reminder_at"
+                            name="reminder_at"
+                        >
+
+                        <p class="helper-text">
+                            Optional. Choose when you would like
+                            to be reminded about this task.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     BUTTONS
+                ========================== -->
+
+                <div class="buttons">
+
+                    <a
+                        href="{{ url_for('auth.dashboard') }}"
+                        class="btn btn-secondary"
+                    >
+                        Cancel
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Save Task ✦
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard | TaskFlow</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            background: #f8f5f2;
+            color: #4a403b;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 240px;
+            height: 100vh;
+            background: #fffdfb;
+            border-right: 1px solid #eadfd8;
+            padding: 30px 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #8b6860;
+            margin-bottom: 45px;
+            text-align: center;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 13px 16px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #6d625d;
+            transition: 0.3s;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: #ead8d2;
+            color: #684e48;
+        }
+
+        /* =========================
+           MAIN CONTENT
+        ========================= */
+
+        .main {
+            margin-left: 240px;
+            padding: 35px 45px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+        }
+
+        .welcome h1 {
+            font-size: 28px;
+            color: #463b37;
+            margin-bottom: 7px;
+        }
+
+        .welcome p {
+            color: #897d77;
+        }
+
+        .profile-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification-button {
+            position: relative;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid #eadfd8;
+            background: #fffdfb;
+            color: #76564e;
+            font-size: 19px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s ease;
+        }
+
+        .notification-button:hover {
+            background: #ead8d2;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 4px;
+            border-radius: 20px;
+            background: #9b746b;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #d9bdb5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* =========================
+           NOTIFICATION TOAST
+        ========================= */
+
+        .notification-container {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            width: 340px;
+            max-width: calc(100vw - 30px);
+            z-index: 9999;
+        }
+
+        .notification {
+            background: #fffdfb;
+            border: 1px solid #eadfd8;
+            border-left: 4px solid #9b746b;
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 10px 30px rgba(92, 70, 60, 0.15);
+            animation: notificationSlide 0.35s ease;
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .notification-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #684e48;
+        }
+
+        .notification-close {
+            border: none;
+            background: transparent;
+            color: #9b8b84;
+            font-size: 18px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .notification-message {
+            font-size: 13px;
+            color: #766963;
+            line-height: 1.5;
+        }
+
+        @keyframes notificationSlide {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* =========================
+           STAT CARDS
+        ========================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: #fffdfb;
+            padding: 23px;
+            border-radius: 18px;
+            border: 1px solid #eee3dd;
+            box-shadow: 0 5px 20px rgba(92, 70, 60, 0.05);
+        }
+
+        .card-title {
+            color: #948781;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .card-number {
+            font-size: 30px;
+            font-weight: 700;
+            color: #554740;
+        }
+
+        .card-note {
+            margin-top: 7px;
+            font-size: 12px;
+            color: #a28f88;
+        }
+
+        /* =========================
+           LOWER SECTION
+        ========================= */
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            align-items: start;
+        }
+
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #51443e;
+        }
+
+        /* =========================
+           RECENT TASKS HEADER
+        ========================= */
+
+        .recent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid #eee3dd;
+        }
+
+        .recent-header p {
+            font-size: 13px;
+            color: #948781;
+            margin-top: 4px;
+        }
+
+        .add-task-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 9px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 13px;
+            background: #9b746b;
+            color: white;
+            white-space: nowrap;
+            transition: 0.2s ease;
+        }
+
+        .add-task-btn:hover {
+            background: #856158;
+        }
+
+        /* =========================
+           RECENT TASK CARD
+        ========================= */
+
+        .recent-task {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 125px;
+            gap: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: #fffaf7;
+            border: 1px solid #eee3dd;
+            border-radius: 16px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .recent-task:last-child {
+            margin-bottom: 0;
+        }
+
+        .recent-task:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(92, 70, 60, 0.07);
+        }
+
+        .recent-task-info {
+            min-width: 0;
+        }
+
+        .recent-task-info h3 {
+            font-size: 17px;
+            color: #51443e;
+            margin-bottom: 7px;
+            line-height: 1.4;
+            overflow-wrap: anywhere;
+        }
+
+        .recent-task-info p {
+            font-size: 13px;
+            color: #948781;
+            line-height: 1.5;
+            margin-bottom: 11px;
+            overflow-wrap: anywhere;
+        }
+
+        .task-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 15px;
+            font-size: 12px;
+            color: #8b6860;
+        }
+
+        /* =========================
+           TASK SIDE
+        ========================= */
+
+        .recent-task-side {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+        }
+
+        .priority {
+            width: 100%;
+            padding: 7px 10px;
+            border-radius: 20px;
+            background: #ead8d2;
+            color: #684e48;
+            font-size: 12px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .view-task {
+            display: block;
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 9px;
+            background: #eee7e3;
+            color: #665852;
+            text-decoration: none;
+            font-size: 12px;
+            text-align: center;
+            transition: 0.2s ease;
+        }
+
+        .view-task:hover {
+            background: #e2d9d4;
+        }
+
+        /* =========================
+           DEADLINE RISK
+        ========================= */
+
+        .risk-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .risk-high {
+            background: #f4d6d2;
+            color: #9b4f47;
+        }
+
+        .risk-medium {
+            background: #f3e6c8;
+            color: #8a6a2f;
+        }
+
+        .risk-low {
+            background: #dce9df;
+            color: #52745a;
+        }
+
+        .risk-none {
+            background: #e8e4e1;
+            color: #6f6864;
+        }
+
+        /* =========================
+           EMPTY STATE
+        ========================= */
+
+        .empty-state {
+            text-align: center;
+            padding: 45px 20px;
+            color: #968984;
+        }
+
+        .empty-icon {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+
+        .empty-state p {
+            margin-bottom: 20px;
+        }
+
+        .empty-button {
+            display: inline-block;
+            padding: 11px 18px;
+            border-radius: 10px;
+            background: #9b746b;
+            color: white;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        /* =========================
+           PRODUCTIVITY PREDICTION
+        ========================= */
+
+        .productivity {
+            text-align: center;
+        }
+
+        .prediction-box {
+            margin-top: 25px;
+            padding: 28px 20px;
+            border-radius: 18px;
+            background: #ead8d2;
+        }
+
+        .prediction-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .prediction-level {
+            font-size: 25px;
+            font-weight: 700;
+            color: #76564e;
+            margin-bottom: 10px;
+        }
+
+        .prediction-description {
+            color: #765f58;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .prediction-note {
+            margin-top: 18px;
+            font-size: 12px;
+            color: #948781;
+            line-height: 1.5;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1100px) {
+
+            .main {
+                padding: 30px;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 850px) {
+
+            .sidebar {
+                width: 210px;
+            }
+
+            .main {
+                margin-left: 210px;
+            }
+
+            .recent-task {
+                grid-template-columns: 1fr;
+            }
+
+            .recent-task-side {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid #eadfd8;
+            }
+
+            .logo {
+                margin-bottom: 20px;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 25px 15px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .top-bar {
+                align-items: flex-start;
+            }
+
+            .welcome h1 {
+                font-size: 24px;
+            }
+
+            .recent-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .add-task-btn {
+                width: 100%;
+            }
+
+            .recent-task {
+                padding: 18px;
+            }
+
+            .notification-container {
+                top: 15px;
+                right: 15px;
+            }
+        }
+
+        @media (max-width: 400px) {
+
+            .main {
+                padding: 20px 10px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .recent-task {
+                padding: 16px;
+            }
+
+            .recent-task-info h3 {
+                font-size: 16px;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- =========================
+         NOTIFICATION CONTAINER
+    ========================= -->
+
+    <div id="notification-container"
+         class="notification-container">
+    </div>
+
+
+    <!-- =========================
+         SIDEBAR
+    ========================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            TaskFlow ✦
+        </div>
+
+        <a href="{{ url_for('auth.dashboard') }}"
+           class="nav-item active">
+            🏠 Dashboard
+        </a>
+
+        <a href="{{ url_for('auth.my_tasks') }}"
+           class="nav-item">
+            📝 My Tasks
+        </a>
+
+        <a href="{{ url_for('auth.calendar') }}"
+           class="nav-item">
+            📅 Calendar
+        </a>
+
+        <a href="{{ url_for('auth.productivity') }}"
+           class="nav-item">
+            📊 Productivity
+        </a>
+
+        <a href="{{ url_for('auth.deadline_risk') }}"
+           class="nav-item">
+            ⚠️ Deadline Risk
+        </a>
+
+        <a href="{{ url_for('auth.settings') }}"
+           class="nav-item">
+            ⚙️ Settings
+        </a>
+
+    </aside>
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================= -->
+
+    <main class="main">
+
+        <!-- TOP BAR -->
+
+        <div class="top-bar">
+
+            <div class="welcome">
+
+                <h1>
+                    {{ greeting }}, {{ current_user.username }}
+                    {{ greeting_icon }}
+                </h1>
+
+                <p>
+                    Let's make today productive and organized.
+                </p>
+
+            </div>
+
+
+            <div class="profile-area">
+
+                <button
+                    type="button"
+                    class="notification-button"
+                    title="Notifications"
+                    onclick="scrollToNotifications()">
+
+                    🔔
+
+                    <span
+                        id="notification-count"
+                        class="notification-count">
+                        0
+                    </span>
+
+                </button>
+
+                <div class="profile">
+                    {{ current_user.username[0]|upper }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             STATISTICS
+        ========================= -->
+
+        <section class="stats">
+
+            <div class="card">
+
+                <div class="card-title">
+                    Total Tasks
+                </div>
+
+                <div class="card-number">
+                    {{ total_tasks }}
+                </div>
+
+                <div class="card-note">
+                    All your tasks
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Completed
+                </div>
+
+                <div class="card-number">
+                    {{ completed_tasks }}
+                </div>
+
+                <div class="card-note">
+                    Tasks completed
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Pending
+                </div>
+
+                <div class="card-number">
+                    {{ pending_tasks }}
+                </div>
+
+                <div class="card-note">
+                    Tasks remaining
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Deadline Risk
+                </div>
+
+                <div class="card-number">
+                    {{ tasks | selectattr("deadline_risk", "equalto", "High") | list | length }}
+                </div>
+
+                <div class="card-note">
+                    High-risk tasks
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             LOWER CONTENT
+        ========================= -->
+
+        <section class="content-grid">
+
+
+            <!-- =========================
+                 RECENT TASKS
+            ========================= -->
+
+            <div class="card">
+
+                <div class="recent-header">
+
+                    <div>
+
+                        <h2 class="section-title">
+                            Recent Tasks
+                        </h2>
+
+                        <p>
+                            Your latest tasks at a glance.
+                        </p>
+
+                    </div>
+
+                    <a href="{{ url_for('auth.add_task') }}"
+                       class="add-task-btn">
+
+                        + Add Task
+
+                    </a>
+
+                </div>
+
+
+                {% if tasks %}
+
+                    <div class="task-list">
+
+                        {% for task in tasks[:5] %}
+
+                            <div class="recent-task">
+
+                                <!-- TASK INFORMATION -->
+
+                                <div class="recent-task-info">
+
+                                    <h3>
+                                        {{ task.title }}
+                                    </h3>
+
+                                    <p>
+                                        {{ task.description or "No description provided." }}
+                                    </p>
+
+                                    <div class="task-meta">
+
+                                        <span>
+                                            📅
+                                            {{ task.deadline.strftime("%d %b %Y, %I:%M %p") }}
+                                        </span>
+
+                                        <span>
+                                            Importance:
+                                            {{ task.importance }}
+                                        </span>
+
+                                        <span>
+                                            Status:
+                                            {{ task.status }}
+                                        </span>
+
+                                    </div>
+
+
+                                    <div style="margin-top: 10px;">
+
+                                        {% if task.deadline_risk == "High" %}
+
+                                            <span class="risk-badge risk-high">
+                                                🔴 High Risk
+                                            </span>
+
+                                        {% elif task.deadline_risk == "Medium" %}
+
+                                            <span class="risk-badge risk-medium">
+                                                🟡 Medium Risk
+                                            </span>
+
+                                        {% elif task.deadline_risk == "Low" %}
+
+                                            <span class="risk-badge risk-low">
+                                                🟢 Low Risk
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="risk-badge risk-none">
+                                                ✓ No Risk
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- TASK SIDE -->
+
+                                <div class="recent-task-side">
+
+                                    <div class="priority">
+                                        Priority:
+                                        {{ task.priority }}
+                                    </div>
+
+                                    <a href="{{ url_for('auth.edit_task', task_id=task.id) }}"
+                                       class="view-task">
+
+                                        ✏️ Edit
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                {% else %}
+
+                    <div class="empty-state">
+
+                        <div class="empty-icon">
+                            🌸
+                        </div>
+
+                        <p>
+                            You don't have any tasks yet.
+                        </p>
+
+                        <a href="{{ url_for('auth.add_task') }}"
+                           class="empty-button">
+
+                            + Add Your First Task
+
+                        </a>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- =========================
+                 PRODUCTIVITY
+            ========================= -->
+
+            <div class="card productivity">
+
+                <h2 class="section-title">
+                    Productivity Prediction
+                </h2>
+
+
+                <div class="prediction-box">
+
+                    {% if productivity_prediction == "High" %}
+
+                        <div class="prediction-icon">
+                            🌟
+                        </div>
+
+                        <div class="prediction-level">
+                            High
+                        </div>
+
+                        <div class="prediction-description">
+                            Your task-completion behaviour indicates
+                            a high productivity level.
+                        </div>
+
+
+                    {% elif productivity_prediction == "Moderate" %}
+
+                        <div class="prediction-icon">
+                            🌷
+                        </div>
+
+                        <div class="prediction-level">
+                            Moderate
+                        </div>
+
+                        <div class="prediction-description">
+                            Your task-completion behaviour indicates
+                            a moderate productivity level.
+                        </div>
+
+
+                    {% elif productivity_prediction == "Low" %}
+
+                        <div class="prediction-icon">
+                            🌱
+                        </div>
+
+                        <div class="prediction-level">
+                            Low
+                        </div>
+
+                        <div class="prediction-description">
+                            Your task-completion behaviour indicates
+                            that there may be room for improvement
+                            in task completion.
+                        </div>
+
+
+                    {% else %}
+
+                        <div class="prediction-icon">
+                            📊
+                        </div>
+
+                        <div class="prediction-level">
+                            Not Enough Data
+                        </div>
+
+                        <div class="prediction-description">
+                            Complete more tasks to allow the system
+                            to analyse your task-management behaviour.
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <p class="prediction-note">
+                    This prediction is based on observable
+                    task-management behaviour recorded by the system.
+                </p>
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         REMINDER JAVASCRIPT
+    ========================= -->
+
+    <script>
+
+        let notificationTotal = 0;
+
+
+        function showNotification(title, message) {
+
+            const container =
+                document.getElementById("notification-container");
+
+            const notification =
+                document.createElement("div");
+
+            notification.className = "notification";
+
+            notification.innerHTML = `
+                <div class="notification-header">
+
+                    <div class="notification-title">
+                        🔔 ${title}
+                    </div>
+
+                    <button
+                        class="notification-close"
+                        onclick="this.closest('.notification').remove()">
+
+                        ×
+
+                    </button>
+
+                </div>
+
+                <div class="notification-message">
+                    ${message}
+                </div>
+            `;
+
+            container.appendChild(notification);
+
+
+            notificationTotal++;
+
+            const count =
+                document.getElementById("notification-count");
+
+            count.textContent = notificationTotal;
+            count.style.display = "flex";
+
+
+            /*
+             * Automatically remove the notification
+             * after 10 seconds.
+             */
+
+            setTimeout(() => {
+
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+
+            }, 10000);
+
+        }
+
+
+        function checkReminders() {
+
+            fetch("{{ url_for('auth.check_reminders') }}")
+
+                .then(response => {
+
+                    if (!response.ok) {
+                        throw new Error(
+                            "Unable to check reminders."
+                        );
+                    }
+
+                    return response.json();
+
+                })
+
+                .then(data => {
+
+                    if (
+                        data.notifications &&
+                        data.notifications.length > 0
+                    ) {
+
+                        data.notifications.forEach(notification => {
+
+                            showNotification(
+                                notification.title,
+                                notification.message
+                            );
+
+                        });
+
+                    }
+
+                })
+
+                .catch(error => {
+
+                    console.error(
+                        "Reminder check error:",
+                        error
+                    );
+
+                });
+
+        }
+
+
+        function scrollToNotifications() {
+
+            const container =
+                document.getElementById(
+                    "notification-container"
+                );
+
+            if (container.children.length > 0) {
+
+                container.children[0].scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+
+            }
+
+        }
+
+
+        /*
+         * Check immediately when the dashboard loads.
+         */
+
+        checkReminders();
+
+
+        /*
+         * Check for new reminders every 30 seconds.
+         */
+
+        setInterval(
+            checkReminders,
+            30000
+        );
+
+    </script>
+
+</body>
+
+</html>

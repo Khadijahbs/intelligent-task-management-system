@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Settings | TaskFlow</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            background: #f7f1e8;
+            color: #4a382c;
+            min-height: 100vh;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 240px;
+            height: 100vh;
+            background: #ead8c4;
+            padding: 30px 18px;
+            box-shadow: 2px 0 12px rgba(80, 55, 35, 0.08);
+            z-index: 1000;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .logo h1 {
+            font-size: 25px;
+            color: #654936;
+            letter-spacing: 0.5px;
+        }
+
+        .logo span {
+            display: block;
+            font-size: 12px;
+            color: #92735a;
+            margin-top: 4px;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 8px;
+        }
+
+        .nav-links a {
+            display: block;
+            text-decoration: none;
+            color: #6b5140;
+            padding: 13px 15px;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            background: #f3e7d7;
+            color: #563c2c;
+        }
+
+        .nav-links a.active {
+            background: #d8bfa3;
+            color: #4e3627;
+            font-weight: 600;
+        }
+
+        /* =========================
+           LOGOUT
+        ========================= */
+
+        .logout-item {
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(107, 81, 64, 0.15);
+        }
+
+        .logout-item a {
+            color: #8a554d !important;
+        }
+
+        .logout-item a:hover {
+            background: #f4dfdb !important;
+            color: #713f38 !important;
+        }
+
+        /* =========================
+           MAIN CONTENT
+        ========================= */
+
+        .main-content {
+            margin-left: 240px;
+            padding: 35px 45px;
+            max-width: 1250px;
+        }
+
+        .page-header {
+            margin-bottom: 28px;
+        }
+
+        .page-header h2 {
+            font-size: 30px;
+            color: #563c2c;
+            margin-bottom: 6px;
+        }
+
+        .page-header p {
+            color: #927b68;
+            font-size: 14px;
+        }
+
+        /* =========================
+           FLASH MESSAGES
+        ========================= */
+
+        .flash-container {
+            margin-bottom: 20px;
+        }
+
+        .flash-message {
+            padding: 13px 17px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .flash-message.success {
+            background: #e4f1e2;
+            color: #3f6940;
+            border: 1px solid #c8dfc5;
+        }
+
+        .flash-message.error {
+            background: #f8e4e0;
+            color: #8a4439;
+            border: 1px solid #e8c7c1;
+        }
+
+        /* =========================
+           CARDS
+        ========================= */
+
+        .settings-card {
+            background: #fffaf4;
+            border: 1px solid #eadccd;
+            border-radius: 18px;
+            padding: 27px;
+            margin-bottom: 22px;
+            box-shadow: 0 5px 18px rgba(91, 62, 39, 0.05);
+        }
+
+        .card-header {
+            margin-bottom: 23px;
+        }
+
+        .card-header h3 {
+            color: #604431;
+            font-size: 19px;
+            margin-bottom: 5px;
+        }
+
+        .card-header p {
+            color: #998372;
+            font-size: 13px;
+        }
+
+        /* =========================
+           PROFILE INFORMATION
+        ========================= */
+
+        .profile-top {
+            display: flex;
+            align-items: center;
+            gap: 17px;
+            margin-bottom: 25px;
+            padding-bottom: 22px;
+            border-bottom: 1px solid #eee2d5;
+        }
+
+        .profile-avatar {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: #d5b99b;
+            color: #fffaf4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+            font-weight: 600;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .profile-top h4 {
+            color: #5d4331;
+            font-size: 17px;
+            margin-bottom: 4px;
+        }
+
+        .profile-top p {
+            color: #9b8573;
+            font-size: 13px;
+        }
+
+        .profile-field {
+            margin-bottom: 20px;
+        }
+
+        .field-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .field-label label {
+            color: #6b5140;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .field-value {
+            background: #f8f0e7;
+            border: 1px solid #eadccd;
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: #5d4636;
+            font-size: 14px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .edit-btn {
+            border: none;
+            background: #d7b99a;
+            color: #51392a;
+            padding: 7px 13px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .edit-btn:hover {
+            background: #c9a987;
+        }
+
+        /* =========================
+           USERNAME EDIT
+        ========================= */
+
+        .username-edit-form {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .username-edit-form.show {
+            display: block;
+        }
+
+        .username-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d9c7b4;
+            border-radius: 10px;
+            background: #fffdf9;
+            color: #4e392c;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .username-input:focus {
+            border-color: #b89470;
+            box-shadow: 0 0 0 3px rgba(184, 148, 112, 0.12);
+        }
+
+        .edit-actions {
+            display: flex;
+            gap: 9px;
+            margin-top: 10px;
+        }
+
+        .save-btn,
+        .cancel-btn {
+            border: none;
+            padding: 9px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .save-btn {
+            background: #9a7657;
+            color: white;
+        }
+
+        .save-btn:hover {
+            background: #846248;
+        }
+
+        .cancel-btn {
+            background: #eadfd2;
+            color: #604937;
+        }
+
+        .cancel-btn:hover {
+            background: #dfd1c1;
+        }
+
+        /* =========================
+           LOCKED FIELDS
+        ========================= */
+
+        .locked-field {
+            background: #f3ece4;
+            color: #806d5e;
+        }
+
+        .locked-field span {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .locked-note {
+            font-size: 11px;
+            color: #a28d7a;
+            margin-top: 6px;
+        }
+
+        /* =========================
+           SECURITY
+        ========================= */
+
+        .security-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 17px 0;
+            border-bottom: 1px solid #eee2d5;
+        }
+
+        .security-row:last-child {
+            border-bottom: none;
+        }
+
+        .security-info h4 {
+            color: #604431;
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+
+        .security-info p {
+            color: #998372;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .security-action {
+            flex-shrink: 0;
+        }
+
+        .security-btn {
+            border: none;
+            background: #d7b99a;
+            color: #51392a;
+            padding: 9px 15px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .security-btn:hover {
+            background: #c9a987;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #eee4d8;
+            color: #816d5b;
+            padding: 7px 11px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .verified-badge {
+            display: inline-block;
+            background: #e4f1e2;
+            color: #4c714b;
+            padding: 7px 11px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* =========================
+           CHANGE PASSWORD FORM
+        ========================= */
+
+        .password-form {
+            display: none;
+            background: #f9f2e9;
+            border: 1px solid #eadccd;
+            border-radius: 13px;
+            padding: 20px;
+            margin-top: 18px;
+        }
+
+        .password-form.show {
+            display: block;
+        }
+
+        .password-field {
+            margin-bottom: 16px;
+        }
+
+        .password-field label {
+            display: block;
+            color: #6b5140;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+        .password-input-wrapper {
+            position: relative;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 12px 75px 12px 14px;
+            border: 1px solid #d9c7b4;
+            border-radius: 10px;
+            background: #fffdf9;
+            color: #4e392c;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .password-input:focus {
+            border-color: #b89470;
+            box-shadow: 0 0 0 3px rgba(184, 148, 112, 0.12);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: #8d7059;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .password-hint {
+            font-size: 11px;
+            color: #a18d7a;
+            margin-top: 6px;
+        }
+
+        .password-actions {
+            display: flex;
+            gap: 9px;
+            margin-top: 5px;
+        }
+
+        /* =========================
+           PROFILE PHOTO
+        ========================= */
+
+        .profile-photo-box {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            background: #f8f0e7;
+            border: 1px solid #eadccd;
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .photo-preview {
+            width: 95px;
+            height: 95px;
+            border-radius: 50%;
+            background: #d5b99b;
+            color: #fffaf4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            font-weight: 600;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 3px solid #ead8c4;
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .photo-upload-content {
+            flex: 1;
+        }
+
+        .photo-upload-content h3 {
+            color: #604431;
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .photo-upload-content p {
+            color: #998372;
+            font-size: 12px;
+            line-height: 1.5;
+            margin-bottom: 13px;
+        }
+
+        .file-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 9px;
+            border: 1px solid #d9c7b4;
+            border-radius: 9px;
+            background: #fffdf9;
+            color: #6b5140;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .file-input::file-selector-button {
+            border: none;
+            background: #d7b99a;
+            color: #51392a;
+            padding: 7px 11px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .file-input::file-selector-button:hover {
+            background: #c9a987;
+        }
+
+        .upload-btn {
+            border: none;
+            background: #9a7657;
+            color: white;
+            padding: 9px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .upload-btn:hover {
+            background: #846248;
+        }
+
+        .photo-hint {
+            font-size: 11px;
+            color: #a18d7a;
+            margin-top: 8px;
+        }
+
+        /* =========================
+           PREFERENCES
+        ========================= */
+
+        .preference-form {
+            margin-top: 5px;
+        }
+
+        .preference-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 17px 0;
+            border-bottom: 1px solid #eee2d5;
+        }
+
+        .preference-row:first-child {
+            padding-top: 5px;
+        }
+
+        .preference-row:last-of-type {
+            border-bottom: none;
+        }
+
+        .preference-info {
+            flex: 1;
+        }
+
+        .preference-info h4 {
+            color: #604431;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .preference-info p {
+            color: #998372;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* =========================
+           TOGGLE SWITCH
+        ========================= */
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: #d8c8b8;
+            border-radius: 30px;
+            transition: 0.25s ease;
+        }
+
+        .slider:before {
+            content: "";
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            top: 3px;
+            background: #fffaf4;
+            border-radius: 50%;
+            transition: 0.25s ease;
+            box-shadow: 0 2px 5px rgba(80, 55, 35, 0.15);
+        }
+
+        .switch input:checked + .slider {
+            background: #9a7657;
+        }
+
+        .switch input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        .switch input:focus + .slider {
+            box-shadow: 0 0 0 3px rgba(154, 118, 87, 0.15);
+        }
+
+        .preference-actions {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .preferences-save-btn {
+            border: none;
+            background: #9a7657;
+            color: white;
+            padding: 10px 17px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .preferences-save-btn:hover {
+            background: #846248;
+        }
+
+        .preference-note {
+            color: #a18d7a;
+            font-size: 11px;
+        }
+
+        /* =========================
+           OTHER SETTINGS
+        ========================= */
+
+        .feature-box {
+            background: #f8f0e7;
+            border: 1px solid #eadccd;
+            border-radius: 12px;
+            padding: 17px;
+            margin-bottom: 12px;
+        }
+
+        .feature-box:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-box h4,
+        .feature-box h3 {
+            color: #604431;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .feature-box p {
+            color: #998372;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .feature-box .status-badge {
+            margin-top: 10px;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 850px) {
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                padding: 20px;
+            }
+
+            .logo {
+                margin-bottom: 18px;
+            }
+
+            .nav-links {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 7px;
+            }
+
+            .nav-links li {
+                margin-bottom: 0;
+            }
+
+            .nav-links a {
+                padding: 9px 11px;
+                font-size: 12px;
+            }
+
+            .logout-item {
+                margin-top: 0;
+                padding-top: 0;
+                border-top: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 25px 18px;
+            }
+
+            .page-header h2 {
+                font-size: 25px;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .settings-card {
+                padding: 20px;
+            }
+
+            .profile-top {
+                align-items: flex-start;
+            }
+
+            .profile-photo-box {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .photo-upload-content {
+                width: 100%;
+            }
+
+            .file-input {
+                max-width: 100%;
+            }
+
+            .security-row {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .security-action {
+                width: 100%;
+            }
+
+            .security-btn {
+                width: 100%;
+            }
+
+            .field-value {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .preference-row {
+                align-items: flex-start;
+            }
+
+            .preference-actions {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         SIDEBAR
+    ========================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h1>TaskFlow ✦</h1>
+
+            <span>Intelligent Task Management</span>
+
+        </div>
+
+
+        <ul class="nav-links">
+
+            <li>
+                <a href="{{ url_for('auth.dashboard') }}">
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('auth.my_tasks') }}">
+                    My Tasks
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('auth.calendar') }}">
+                    Calendar
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('auth.productivity') }}">
+                    Productivity
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('auth.deadline_risk') }}">
+                    Deadline Risk
+                </a>
+            </li>
+
+            <li>
+                <a
+                    href="{{ url_for('auth.settings') }}"
+                    class="active"
+                >
+                    Settings
+                </a>
+            </li>
+
+            <!-- LOGOUT -->
+
+            <li class="logout-item">
+
+                <a href="{{ url_for('auth.logout') }}">
+                    🚪 Logout
+                </a>
+
+            </li>
+
+        </ul>
+
+    </aside>
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================= -->
+
+    <main class="main-content">
+
+
+        <div class="page-header">
+
+            <h2>Settings</h2>
+
+            <p>
+                Manage your TaskFlow account and security settings.
+            </p>
+
+        </div>
+
+
+        <!-- =========================
+             MESSAGES
+        ========================= -->
+
+        <div class="flash-container">
+
+            {% if success_message %}
+
+                <div class="flash-message success">
+
+                    ✓ {{ success_message }}
+
+                </div>
+
+            {% endif %}
+
+
+            {% if error_message %}
+
+                <div class="flash-message error">
+
+                    ⚠️ {{ error_message }}
+
+                </div>
+
+            {% endif %}
+
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+
+                {% for category, message in messages %}
+
+                    <div class="flash-message {{ category }}">
+
+                        {{ message }}
+
+                    </div>
+
+                {% endfor %}
+
+            {% endwith %}
+
+        </div>
+
+
+        <!-- =========================
+             PROFILE INFORMATION
+        ========================= -->
+
+        <section class="settings-card">
+
+            <div class="card-header">
+
+                <h3>Profile Information</h3>
+
+                <p>
+                    Your account information and profile details.
+                </p>
+
+            </div>
+
+
+            <div class="profile-top">
+
+                <div class="profile-avatar">
+
+                    {% if current_user.profile_photo %}
+
+                        <img
+                            src="{{ url_for('static', filename='uploads/profile_photos/' ~ current_user.profile_photo) }}"
+                            alt="Profile Photo"
+                        >
+
+                    {% else %}
+
+                        {{ current_user.username[0]|upper }}
+
+                    {% endif %}
+
+                </div>
+
+
+                <div>
+
+                    <h4>
+                        {{ current_user.username }}
+                    </h4>
+
+                    <p>
+                        TaskFlow account
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- USERNAME -->
+
+            <div class="profile-field">
+
+                <div class="field-label">
+
+                    <label>
+                        Username
+                    </label>
+
+                    <button
+                        type="button"
+                        class="edit-btn"
+                        id="editUsernameBtn"
+                        onclick="showUsernameEditor()"
+                    >
+                        ✏️ Edit
+                    </button>
+
+                </div>
+
+
+                <div class="field-value">
+
+                    {{ current_user.username }}
+
+                </div>
+
+
+                <form
+                    method="POST"
+                    action="{{ url_for('auth.settings') }}"
+                    class="username-edit-form"
+                    id="usernameEditForm"
+                >
+
+                    <input
+                        type="text"
+                        name="username"
+                        class="username-input"
+                        value="{{ current_user.username }}"
+                        required
+                        autocomplete="username"
+                    >
+
+
+                    <div class="edit-actions">
+
+                        <button
+                            type="submit"
+                            class="save-btn"
+                        >
+                            Save
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="cancel-btn"
+                            onclick="cancelUsernameEdit()"
+                        >
+                            Cancel
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- EMAIL -->
+
+            <div class="profile-field">
+
+                <div class="field-label">
+
+                    <label>
+                        Gmail Address
+                    </label>
+
+                </div>
+
+
+                <div class="field-value locked-field">
+
+                    <span>
+
+                        🔒
+
+                        {{ current_user.email }}
+
+                    </span>
+
+                </div>
+
+
+                <div class="locked-note">
+
+                    Verified account email — cannot be changed.
+
+                </div>
+
+            </div>
+
+
+            <!-- GENDER -->
+
+            <div class="profile-field">
+
+                <div class="field-label">
+
+                    <label>
+                        Gender
+                    </label>
+
+                </div>
+
+
+                <div class="field-value locked-field">
+
+                    <span>
+
+                        🔒
+
+                        {{ current_user.gender }}
+
+                    </span>
+
+                </div>
+
+
+                <div class="locked-note">
+
+                    Account setting — cannot be changed.
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             ACCOUNT SECURITY
+        ========================= -->
+
+        <section class="settings-card">
+
+            <div class="card-header">
+
+                <h3>Account Security</h3>
+
+                <p>
+                    Keep your account protected with secure login settings.
+                </p>
+
+            </div>
+
+
+            <!-- CHANGE PASSWORD -->
+
+            <div class="security-row">
+
+                <div class="security-info">
+
+                    <h4>
+                        Change Password
+                    </h4>
+
+                    <p>
+                        Update your password to keep your TaskFlow account secure.
+                    </p>
+
+                </div>
+
+
+                <div class="security-action">
+
+                    <button
+                        type="button"
+                        class="security-btn"
+                        id="changePasswordBtn"
+                        onclick="showPasswordForm()"
+                    >
+                        🔐 Change Password
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- PASSWORD FORM -->
+
+            <form
+                method="POST"
+                action="{{ url_for('auth.change_password') }}"
+                class="password-form"
+                id="passwordForm"
+            >
+
+                <div class="password-field">
+
+                    <label for="current_password">
+                        Current Password
+                    </label>
+
+
+                    <div class="password-input-wrapper">
+
+                        <input
+                            type="password"
+                            name="current_password"
+                            id="current_password"
+                            class="password-input"
+                            required
+                            autocomplete="current-password"
+                        >
+
+
+                        <button
+                            type="button"
+                            class="toggle-password"
+                            onclick="togglePassword('current_password', this)"
+                        >
+                            Show
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="password-field">
+
+                    <label for="new_password">
+                        New Password
+                    </label>
+
+
+                    <div class="password-input-wrapper">
+
+                        <input
+                            type="password"
+                            name="new_password"
+                            id="new_password"
+                            class="password-input"
+                            required
+                            minlength="8"
+                            autocomplete="new-password"
+                        >
+
+
+                        <button
+                            type="button"
+                            class="toggle-password"
+                            onclick="togglePassword('new_password', this)"
+                        >
+                            Show
+                        </button>
+
+                    </div>
+
+
+                    <div class="password-hint">
+
+                        Password must be at least 8 characters long.
+
+                    </div>
+
+                </div>
+
+
+                <div class="password-field">
+
+                    <label for="confirm_password">
+                        Confirm New Password
+                    </label>
+
+
+                    <div class="password-input-wrapper">
+
+                        <input
+                            type="password"
+                            name="confirm_password"
+                            id="confirm_password"
+                            class="password-input"
+                            required
+                            minlength="8"
+                            autocomplete="new-password"
+                        >
+
+
+                        <button
+                            type="button"
+                            class="toggle-password"
+                            onclick="togglePassword('confirm_password', this)"
+                        >
+                            Show
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="password-actions">
+
+                    <button
+                        type="submit"
+                        class="save-btn"
+                    >
+                        Save Password
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="cancel-btn"
+                        onclick="cancelPasswordChange()"
+                    >
+                        Cancel
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <!-- EMAIL VERIFICATION -->
+
+            <div class="security-row">
+
+                <div class="security-info">
+
+                    <h4>
+                        Email Verification
+                    </h4>
+
+                    <p>
+                        Your Gmail address has been verified.
+                    </p>
+
+                </div>
+
+
+                <div class="security-action">
+
+                    <span class="verified-badge">
+                        ✓ Verified
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             PROFILE PHOTO
+        ========================= -->
+
+        <section class="settings-card">
+
+            <div class="card-header">
+
+                <h3>Profile Photo</h3>
+
+                <p>
+                    Personalize your TaskFlow profile.
+                </p>
+
+            </div>
+
+
+            <div class="profile-photo-box">
+
+                <div class="photo-preview">
+
+                    {% if current_user.profile_photo %}
+
+                        <img
+                            src="{{ url_for('static', filename='uploads/profile_photos/' ~ current_user.profile_photo) }}"
+                            alt="Current Profile Photo"
+                        >
+
+                    {% else %}
+
+                        {{ current_user.username[0]|upper }}
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="photo-upload-content">
+
+                    <h3>
+                        Upload Profile Picture
+                    </h3>
+
+                    <p>
+                        Choose a photo to personalize your TaskFlow account.
+                        Your image will be used as your profile picture.
+                    </p>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('auth.profile_photo') }}"
+                        enctype="multipart/form-data"
+                    >
+
+                        <input
+                            type="file"
+                            name="profile_photo"
+                            id="profilePhotoInput"
+                            class="file-input"
+                            accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif"
+                            required
+                            onchange="showSelectedFile()"
+                        >
+
+
+                        <br>
+
+
+                        <button
+                            type="submit"
+                            class="upload-btn"
+                        >
+                            📸 Upload Photo
+                        </button>
+
+                    </form>
+
+
+                    <div
+                        class="photo-hint"
+                        id="selectedFileName"
+                    >
+                        JPG, JPEG, PNG, WEBP or GIF • Maximum 2 MB
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             PREFERENCES
+        ========================= -->
+
+        <section class="settings-card">
+
+            <div class="card-header">
+
+                <h3>Preferences</h3>
+
+                <p>
+                    Manage your TaskFlow experience.
+                </p>
+
+            </div>
+
+
+            <!-- TASK MANAGEMENT -->
+
+            <div class="feature-box">
+
+                <h3>
+                    Task Management
+                </h3>
+
+                <p>
+                    Intelligent priority recommendations and
+                    deadline-risk analysis are active.
+                </p>
+
+
+                <span class="verified-badge">
+                    ✓ Active
+                </span>
+
+            </div>
+
+
+            <!-- NOTIFICATIONS & REMINDERS -->
+
+            <form
+                method="POST"
+                action="{{ url_for('auth.update_preferences') }}"
+                class="preference-form"
+            >
+
+                <div class="feature-box">
+
+                    <div class="preference-row">
+
+                        <div class="preference-info">
+
+                            <h4>
+                                Email Notifications
+                            </h4>
+
+                            <p>
+                                Receive important TaskFlow notifications
+                                through your registered Gmail address.
+                            </p>
+
+                        </div>
+
+
+                        <label class="switch">
+
+                            <input
+                                type="checkbox"
+                                name="email_notifications"
+                                {% if current_user.email_notifications %}
+                                    checked
+                                {% endif %}
+                            >
+
+                            <span class="slider"></span>
+
+                        </label>
+
+                    </div>
+
+
+                    <div class="preference-row">
+
+                        <div class="preference-info">
+
+                            <h4>
+                                Task Reminders
+                            </h4>
+
+                            <p>
+                                Receive automatic email reminders when
+                                scheduled task reminders become due.
+                            </p>
+
+                        </div>
+
+
+                        <label class="switch">
+
+                            <input
+                                type="checkbox"
+                                name="task_reminders"
+                                {% if current_user.task_reminders %}
+                                    checked
+                                {% endif %}
+                            >
+
+                            <span class="slider"></span>
+
+                        </label>
+
+                    </div>
+
+
+                    <div class="preference-actions">
+
+                        <button
+                            type="submit"
+                            class="preferences-save-btn"
+                        >
+                            💾 Save Preferences
+                        </button>
+
+
+                        <span class="preference-note">
+                            Your preferences are saved to your account.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- =========================
+             ABOUT
+        ========================= -->
+
+        <section class="settings-card">
+
+            <div class="card-header">
+
+                <h3>About Your Account</h3>
+
+                <p>
+                    How TaskFlow supports your productivity.
+                </p>
+
+            </div>
+
+
+            <div class="feature-box">
+
+                <p>
+                    TaskFlow uses task information and your historical
+                    task behaviour to provide intelligent productivity
+                    and deadline-risk insights.
+                </p>
+
+                <br>
+
+                <p>
+                    Recommendations are designed to support your
+                    decision-making while keeping you in control
+                    of your tasks.
+                </p>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================= -->
+
+    <script>
+
+        /* =========================
+           USERNAME EDIT
+        ========================= */
+
+        function showUsernameEditor() {
+
+            const form =
+                document.getElementById("usernameEditForm");
+
+            const button =
+                document.getElementById("editUsernameBtn");
+
+
+            form.classList.add("show");
+
+            button.style.display = "none";
+
+
+            const input =
+                form.querySelector(".username-input");
+
+
+            input.focus();
+
+            input.select();
+
+        }
+
+
+        function cancelUsernameEdit() {
+
+            const form =
+                document.getElementById("usernameEditForm");
+
+            const button =
+                document.getElementById("editUsernameBtn");
+
+
+            form.classList.remove("show");
+
+            button.style.display = "block";
+
+        }
+
+
+        /* =========================
+           CHANGE PASSWORD
+        ========================= */
+
+        function showPasswordForm() {
+
+            const form =
+                document.getElementById("passwordForm");
+
+            const button =
+                document.getElementById("changePasswordBtn");
+
+
+            form.classList.add("show");
+
+            button.style.display = "none";
+
+
+            const input =
+                document.getElementById("current_password");
+
+
+            input.focus();
+
+        }
+
+
+        function cancelPasswordChange() {
+
+            const form =
+                document.getElementById("passwordForm");
+
+            const button =
+                document.getElementById("changePasswordBtn");
+
+
+            form.classList.remove("show");
+
+            button.style.display = "block";
+
+
+            form.reset();
+
+
+            resetPasswordButtons();
+
+        }
+
+
+        /* =========================
+           SHOW / HIDE PASSWORD
+        ========================= */
+
+        function togglePassword(inputId, button) {
+
+            const input =
+                document.getElementById(inputId);
+
+
+            if (input.type === "password") {
+
+                input.type = "text";
+
+                button.textContent = "Hide";
+
+            } else {
+
+                input.type = "password";
+
+                button.textContent = "Show";
+
+            }
+
+        }
+
+
+        function resetPasswordButtons() {
+
+            const buttons =
+                document.querySelectorAll(".toggle-password");
+
+
+            buttons.forEach(function(button) {
+
+                button.textContent = "Show";
+
+            });
+
+        }
+
+
+        /* =========================
+           PROFILE PHOTO FILE NAME
+        ========================= */
+
+        function showSelectedFile() {
+
+            const input =
+                document.getElementById("profilePhotoInput");
+
+            const display =
+                document.getElementById("selectedFileName");
+
+
+            if (input.files.length > 0) {
+
+                display.textContent =
+                    "Selected: " + input.files[0].name;
+
+            } else {
+
+                display.textContent =
+                    "JPG, JPEG, PNG, WEBP or GIF • Maximum 2 MB";
+
+            }
+
+        }
+
+    </script>
+
+
+</body>
+
+</html>

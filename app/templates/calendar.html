@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Calendar | Task Management System</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f7f5f6;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* =========================
+           TOP NAVIGATION
+        ========================= */
+
+        .topbar {
+            background: white;
+            padding: 18px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e8e3e5;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .brand {
+            font-size: 21px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .brand span {
+            margin-left: 5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: #666;
+            padding: 9px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .nav-item:hover {
+            background: #f3eef1;
+        }
+
+        .nav-item.active {
+            background: #eadfe5;
+            color: #444;
+            font-weight: 600;
+        }
+
+        /* =========================
+           MAIN CONTAINER
+        ========================= */
+
+        .container {
+            width: 92%;
+            max-width: 1200px;
+            margin: 35px auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            color: #3f3a3d;
+        }
+
+        .page-header p {
+            margin-top: 6px;
+            color: #777;
+            font-size: 14px;
+        }
+
+        /* =========================
+           CALENDAR
+        ========================= */
+
+        .calendar-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #eee8eb;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-header h2 {
+            font-size: 21px;
+            color: #454044;
+        }
+
+        .calendar-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .calendar-controls button {
+            border: 1px solid #ddd;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 7px;
+            cursor: pointer;
+            color: #555;
+        }
+
+        .calendar-controls button:hover {
+            background: #f3eef1;
+        }
+
+        /* =========================
+           WEEKDAYS / GRID
+        ========================= */
+
+        .weekdays,
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+
+        .weekday {
+            text-align: center;
+            padding: 12px 5px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #777;
+        }
+
+        .day {
+            min-height: 105px;
+            border: 1px solid #eee;
+            padding: 8px;
+            position: relative;
+            background: #fff;
+        }
+
+        .day.other-month {
+            background: #fafafa;
+            color: #bbb;
+        }
+
+        .day.today {
+            background: #f8f1f5;
+        }
+
+        .day-number {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #555;
+        }
+
+        .today .day-number {
+            background: #555;
+            color: white;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        /* =========================
+           TASK EVENTS
+        ========================= */
+
+        .task-event {
+            display: block;
+            width: 100%;
+            padding: 5px 6px;
+            margin-top: 4px;
+            border-radius: 5px;
+            font-size: 11px;
+            text-decoration: none;
+            color: #444;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .task-event:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .task-pending {
+            background: #eee8ec;
+        }
+
+        .task-completed {
+            background: #e8eee9;
+            text-decoration: line-through;
+            color: #777;
+        }
+
+        .task-high {
+            border-left: 4px solid #777;
+        }
+
+        .task-medium {
+            border-left: 4px solid #aaa;
+        }
+
+        .task-low {
+            border-left: 4px solid #ccc;
+        }
+
+        /* =========================
+           REMINDER INDICATOR
+        ========================= */
+
+        .reminder-indicator {
+            margin-left: 4px;
+            font-size: 10px;
+        }
+
+        /* =========================
+           EMPTY STATE
+        ========================= */
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #777;
+        }
+
+        .empty-state .icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .empty-state h3 {
+            color: #555;
+            margin-bottom: 7px;
+        }
+
+        /* =========================
+           CALENDAR HINT
+        ========================= */
+
+        .calendar-hint {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 800px) {
+
+            .topbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .calendar-card {
+                padding: 12px;
+                overflow-x: auto;
+            }
+
+            .weekdays,
+            .calendar-grid {
+                min-width: 650px;
+            }
+
+            .day {
+                min-height: 90px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         TOP BAR
+    ========================= -->
+
+    <div class="topbar">
+
+        <div class="brand">
+            Intelligent Task Management <span>🌷</span>
+        </div>
+
+        <div class="nav-links">
+
+            <a
+                href="{{ url_for('auth.dashboard') }}"
+                class="nav-item"
+            >
+                Dashboard
+            </a>
+
+            <a
+                href="{{ url_for('auth.my_tasks') }}"
+                class="nav-item"
+            >
+                My Tasks
+            </a>
+
+            <a
+                href="{{ url_for('auth.calendar') }}"
+                class="nav-item active"
+            >
+                Calendar
+            </a>
+
+            <a
+                href="{{ url_for('auth.deadline_risk') }}"
+                class="nav-item"
+            >
+                Deadline Risk
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================= -->
+
+    <div class="container">
+
+        <div class="page-header">
+
+            <div>
+
+                <h1>Calendar 📅</h1>
+
+                <p>
+                    View your tasks according to their deadlines.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% if tasks %}
+
+        <div class="calendar-card">
+
+            <div class="calendar-header">
+
+                <h2 id="monthYear"></h2>
+
+                <div class="calendar-controls">
+
+                    <button
+                        type="button"
+                        onclick="previousMonth()"
+                    >
+                        ←
+                    </button>
+
+                    <button
+                        type="button"
+                        id="todayButton"
+                        onclick="goToToday()"
+                    >
+                        Today
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="nextMonth()"
+                    >
+                        →
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="weekdays">
+
+                <div class="weekday">Sun</div>
+                <div class="weekday">Mon</div>
+                <div class="weekday">Tue</div>
+                <div class="weekday">Wed</div>
+                <div class="weekday">Thu</div>
+                <div class="weekday">Fri</div>
+                <div class="weekday">Sat</div>
+
+            </div>
+
+
+            <div
+                class="calendar-grid"
+                id="calendarGrid"
+            ></div>
+
+            <div class="calendar-hint">
+                Click a task to view or edit it.
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             HIDDEN TASK DATA
+        ========================= -->
+
+        <div
+            id="taskData"
+            style="display:none;"
+        >
+
+            {% for task in tasks %}
+
+            <div
+                class="calendar-task"
+
+                data-id="{{ task.id }}"
+
+                data-title="{{ task.title }}"
+
+                data-date="{{ task.deadline.strftime('%Y-%m-%d') }}"
+
+                data-status="{{ task.status }}"
+
+                data-priority="{{ task.priority }}"
+
+                data-reminder="{% if task.reminder_at %}{{ task.reminder_at.strftime('%Y-%m-%d %H:%M') }}{% endif %}"
+            ></div>
+
+            {% endfor %}
+
+        </div>
+
+
+        {% else %}
+
+        <div class="calendar-card">
+
+            <div class="empty-state">
+
+                <div class="icon">
+                    📅
+                </div>
+
+                <h3>
+                    No tasks yet
+                </h3>
+
+                <p>
+                    Add a task with a deadline and it will appear here.
+                </p>
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- =========================
+         CALENDAR JAVASCRIPT
+    ========================= -->
+
+    <script>
+
+        /* =========================
+           CURRENT MONTH
+        ========================= */
+
+        const todayDate = new Date();
+
+        let currentDate = new Date(
+            todayDate.getFullYear(),
+            todayDate.getMonth(),
+            1
+        );
+
+
+        /* =========================
+           LOAD TASK DATA
+        ========================= */
+
+        const taskElements =
+            document.querySelectorAll(
+                ".calendar-task"
+            );
+
+        let tasks = [];
+
+
+        taskElements.forEach(function(task) {
+
+            tasks.push({
+
+                id: task.dataset.id,
+
+                title: task.dataset.title,
+
+                date: task.dataset.date,
+
+                status: task.dataset.status,
+
+                priority: task.dataset.priority,
+
+                reminder: task.dataset.reminder
+
+            });
+
+        });
+
+
+        /* =========================
+           RENDER CALENDAR
+        ========================= */
+
+        function renderCalendar() {
+
+            const year =
+                currentDate.getFullYear();
+
+            const month =
+                currentDate.getMonth();
+
+
+            /* =========================
+               REAL CURRENT DATE
+            ========================= */
+
+            const realToday =
+                new Date();
+
+
+            const isCurrentMonth =
+                year === realToday.getFullYear() &&
+                month === realToday.getMonth();
+
+
+            /* =========================
+               TODAY BUTTON
+            ========================= */
+
+            const todayButton =
+                document.getElementById(
+                    "todayButton"
+                );
+
+
+            if (todayButton) {
+
+                if (isCurrentMonth) {
+
+                    todayButton.style.display =
+                        "inline-block";
+
+                } else {
+
+                    todayButton.style.display =
+                        "none";
+
+                }
+
+            }
+
+
+            /* =========================
+               MONTH NAME
+            ========================= */
+
+            const monthNames = [
+
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December"
+
+            ];
+
+
+            document.getElementById(
+                "monthYear"
+            ).textContent =
+                monthNames[month] +
+                " " +
+                year;
+
+
+            /* =========================
+               CALENDAR GRID
+            ========================= */
+
+            const calendarGrid =
+                document.getElementById(
+                    "calendarGrid"
+                );
+
+
+            calendarGrid.innerHTML = "";
+
+
+            /* =========================
+               FIRST DAY OF MONTH
+            ========================= */
+
+            const firstDay =
+                new Date(
+                    year,
+                    month,
+                    1
+                ).getDay();
+
+
+            /* =========================
+               DAYS IN MONTH
+            ========================= */
+
+            const daysInMonth =
+                new Date(
+                    year,
+                    month + 1,
+                    0
+                ).getDate();
+
+
+            /* =========================
+               PREVIOUS MONTH DAYS
+            ========================= */
+
+            const previousMonthDays =
+                new Date(
+                    year,
+                    month,
+                    0
+                ).getDate();
+
+
+            /* =========================
+               PREVIOUS MONTH CELLS
+            ========================= */
+
+            for (
+                let i = firstDay - 1;
+                i >= 0;
+                i--
+            ) {
+
+                const dayNumber =
+                    previousMonthDays - i;
+
+
+                const day =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                day.className =
+                    "day other-month";
+
+
+                day.innerHTML =
+                    `<div class="day-number">${dayNumber}</div>`;
+
+
+                calendarGrid.appendChild(
+                    day
+                );
+
+            }
+
+
+            /* =========================
+               CURRENT MONTH DAYS
+            ========================= */
+
+            for (
+                let dayNumber = 1;
+                dayNumber <= daysInMonth;
+                dayNumber++
+            ) {
+
+                const day =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                day.className =
+                    "day";
+
+
+                /* =========================
+                   HIGHLIGHT TODAY
+                ========================= */
+
+                if (
+                    isCurrentMonth &&
+                    dayNumber === realToday.getDate()
+                ) {
+
+                    day.classList.add(
+                        "today"
+                    );
+
+                }
+
+
+                day.innerHTML =
+                    `<div class="day-number">${dayNumber}</div>`;
+
+
+                /* =========================
+                   CREATE DATE STRING
+                ========================= */
+
+                const dateString =
+                    year +
+                    "-" +
+                    String(
+                        month + 1
+                    ).padStart(2, "0") +
+                    "-" +
+                    String(
+                        dayNumber
+                    ).padStart(2, "0");
+
+
+                /* =========================
+                   FIND TASKS
+                ========================= */
+
+                const dayTasks =
+                    tasks.filter(
+                        function(task) {
+
+                            return task.date ===
+                                dateString;
+
+                        }
+                    );
+
+
+                /* =========================
+                   DISPLAY TASKS
+                ========================= */
+
+                dayTasks.forEach(
+                    function(task) {
+
+                        const taskElement =
+                            document.createElement(
+                                "a"
+                            );
+
+
+                        taskElement.classList.add(
+                            "task-event"
+                        );
+
+
+                        /* =========================
+                           EDIT TASK LINK
+                        ========================= */
+
+                        taskElement.href =
+                            "{{ url_for('auth.edit_task', task_id=0) }}"
+                                .replace(
+                                    "/0",
+                                    "/" + task.id
+                                );
+
+
+                        /* =========================
+                           TASK STATUS
+                        ========================= */
+
+                        if (
+                            task.status ===
+                            "Completed"
+                        ) {
+
+                            taskElement.classList.add(
+                                "task-completed"
+                            );
+
+                        } else {
+
+                            taskElement.classList.add(
+                                "task-pending"
+                            );
+
+                        }
+
+
+                        /* =========================
+                           TASK PRIORITY
+                        ========================= */
+
+                        if (
+                            task.priority ===
+                            "High"
+                        ) {
+
+                            taskElement.classList.add(
+                                "task-high"
+                            );
+
+                        } else if (
+                            task.priority ===
+                            "Medium"
+                        ) {
+
+                            taskElement.classList.add(
+                                "task-medium"
+                            );
+
+                        } else {
+
+                            taskElement.classList.add(
+                                "task-low"
+                            );
+
+                        }
+
+
+                        /* =========================
+                           TASK TITLE
+                        ========================= */
+
+                        const titleSpan =
+                            document.createElement(
+                                "span"
+                            );
+
+
+                        titleSpan.textContent =
+                            task.title;
+
+
+                        taskElement.appendChild(
+                            titleSpan
+                        );
+
+
+                        /* =========================
+                           REMINDER ICON
+                        ========================= */
+
+                        if (task.reminder) {
+
+                            const reminderIndicator =
+                                document.createElement(
+                                    "span"
+                                );
+
+
+                            reminderIndicator.className =
+                                "reminder-indicator";
+
+
+                            reminderIndicator.textContent =
+                                "🔔";
+
+
+                            taskElement.appendChild(
+                                reminderIndicator
+                            );
+
+                        }
+
+
+                        /* =========================
+                           HOVER INFORMATION
+                        ========================= */
+
+                        if (task.reminder) {
+
+                            taskElement.title =
+                                task.title +
+                                " • " +
+                                task.priority +
+                                " Priority • " +
+                                task.status +
+                                " • 🔔 Reminder: " +
+                                task.reminder;
+
+                        } else {
+
+                            taskElement.title =
+                                task.title +
+                                " • " +
+                                task.priority +
+                                " Priority • " +
+                                task.status +
+                                " • No reminder";
+
+                        }
+
+
+                        day.appendChild(
+                            taskElement
+                        );
+
+                    }
+                );
+
+
+                calendarGrid.appendChild(
+                    day
+                );
+
+            }
+
+
+            /* =========================
+               REMAINING CELLS
+            ========================= */
+
+            const totalCells =
+                firstDay +
+                daysInMonth;
+
+
+            const remainingCells =
+                (
+                    7 -
+                    (totalCells % 7)
+                ) % 7;
+
+
+            for (
+                let i = 1;
+                i <= remainingCells;
+                i++
+            ) {
+
+                const day =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                day.className =
+                    "day other-month";
+
+
+                day.innerHTML =
+                    `<div class="day-number">${i}</div>`;
+
+
+                calendarGrid.appendChild(
+                    day
+                );
+
+            }
+
+        }
+
+
+        /* =========================
+           PREVIOUS MONTH
+        ========================= */
+
+        function previousMonth() {
+
+            currentDate =
+                new Date(
+                    currentDate.getFullYear(),
+                    currentDate.getMonth() - 1,
+                    1
+                );
+
+
+            renderCalendar();
+
+        }
+
+
+        /* =========================
+           NEXT MONTH
+        ========================= */
+
+        function nextMonth() {
+
+            currentDate =
+                new Date(
+                    currentDate.getFullYear(),
+                    currentDate.getMonth() + 1,
+                    1
+                );
+
+
+            renderCalendar();
+
+        }
+
+
+        /* =========================
+           GO TO TODAY
+        ========================= */
+
+        function goToToday() {
+
+            const today =
+                new Date();
+
+
+            currentDate =
+                new Date(
+                    today.getFullYear(),
+                    today.getMonth(),
+                    1
+                );
+
+
+            renderCalendar();
+
+        }
+
+
+        /* =========================
+           INITIAL RENDER
+        ========================= */
+
+        renderCalendar();
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Tasks | TaskFlow</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f3ed;
+            color: #4b3a2f;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .topbar {
+            background: #fffaf5;
+            border-bottom: 1px solid #eadfd3;
+            padding: 18px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            color: #6b4f3a;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #6b5849;
+            font-size: 14px;
+        }
+
+        .nav-links a:hover {
+            color: #9b6f4e;
+        }
+
+        .nav-links .active {
+            color: #8a5d3b;
+            font-weight: bold;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .container {
+            width: 92%;
+            max-width: 1200px;
+            margin: 35px auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            font-size: 30px;
+            color: #5b4434;
+        }
+
+        .page-header p {
+            margin-top: 6px;
+            color: #8a7666;
+            font-size: 14px;
+        }
+
+        .add-task-btn {
+            background: #8a5d3b;
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .add-task-btn:hover {
+            background: #70492f;
+        }
+
+        /* =========================
+           SEARCH / FILTERS
+        ========================= */
+
+        .controls {
+            background: #fffaf5;
+            padding: 18px;
+            border-radius: 14px;
+            border: 1px solid #eadfd3;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .controls input,
+        .controls select {
+            padding: 11px 13px;
+            border: 1px solid #dfd0c1;
+            border-radius: 9px;
+            background: white;
+            color: #5c4b3e;
+            outline: none;
+        }
+
+        .controls input {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .controls input:focus,
+        .controls select:focus {
+            border-color: #a57b5a;
+        }
+
+        /* =========================
+           TASK CARD
+        ========================= */
+
+        .tasks-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+            gap: 20px;
+        }
+
+        .task-card {
+            background: #fffaf5;
+            border: 1px solid #eadfd3;
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 5px 15px rgba(80, 55, 35, 0.05);
+            transition: 0.2s ease;
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(80, 55, 35, 0.08);
+        }
+
+        .task-card.completed {
+            opacity: 0.75;
+        }
+
+        .task-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #5b4434;
+            margin-bottom: 8px;
+        }
+
+        .task-description {
+            color: #806e5f;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .task-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .info-label {
+            color: #8c7969;
+        }
+
+        /* =========================
+           BADGES
+        ========================= */
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .priority-high {
+            background: #f5d6d2;
+            color: #9b3f35;
+        }
+
+        .priority-medium {
+            background: #f3e1c4;
+            color: #8b642c;
+        }
+
+        .priority-low {
+            background: #dcebdc;
+            color: #4f7c52;
+        }
+
+        .status-pending {
+            background: #eee1d3;
+            color: #76563e;
+        }
+
+        .status-completed {
+            background: #dcebdc;
+            color: #4f7c52;
+        }
+
+        .risk-high {
+            background: #f5d6d2;
+            color: #9b3f35;
+        }
+
+        .risk-medium {
+            background: #f3e1c4;
+            color: #8b642c;
+        }
+
+        .risk-low {
+            background: #dcebdc;
+            color: #4f7c52;
+        }
+
+        .risk-none {
+            background: #dcebdc;
+            color: #4f7c52;
+        }
+
+        /* =========================
+           TASK ACTIONS
+        ========================= */
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .task-actions form {
+            display: inline;
+            margin: 0;
+        }
+
+        .task-actions button,
+        .task-actions a {
+            border: none;
+            text-decoration: none;
+            padding: 9px 13px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .complete-btn {
+            background: #dcebdc;
+            color: #4f7c52;
+        }
+
+        .complete-btn:hover {
+            background: #c9dfc9;
+        }
+
+        .edit-btn {
+            background: #eee1d3;
+            color: #76563e;
+        }
+
+        .edit-btn:hover {
+            background: #e3d2c1;
+        }
+
+        .delete-btn {
+            background: #f5d6d2;
+            color: #9b3f35;
+        }
+
+        .delete-btn:hover {
+            background: #ecc3be;
+        }
+
+        /* =========================
+           EMPTY STATE
+        ========================= */
+
+        .empty-state {
+            background: #fffaf5;
+            border: 1px solid #eadfd3;
+            border-radius: 16px;
+            padding: 60px 20px;
+            text-align: center;
+            color: #806e5f;
+        }
+
+        .empty-state .icon {
+            font-size: 45px;
+            margin-bottom: 15px;
+        }
+
+        .empty-state h2 {
+            color: #5b4434;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 700px) {
+
+            .topbar {
+                padding: 15px 18px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 14px;
+            }
+
+            .container {
+                width: 94%;
+                margin: 25px auto;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .add-task-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .tasks-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         TOP NAVIGATION
+    ========================= -->
+
+    <header class="topbar">
+
+        <div class="logo">
+            TaskFlow ✦
+        </div>
+
+        <nav class="nav-links">
+
+            <a href="{{ url_for('auth.dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('auth.my_tasks') }}" class="active">
+                My Tasks
+            </a>
+
+            <a href="{{ url_for('auth.productivity') }}">
+                Productivity
+            </a>
+
+            <a href="{{ url_for('auth.calendar') }}">
+                Calendar
+            </a>
+
+            <a href="{{ url_for('auth.deadline_risk') }}">
+                Deadline Risk
+            </a>
+
+        </nav>
+
+    </header>
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================= -->
+
+    <main class="container">
+
+        <div class="page-header">
+
+            <div>
+                <h1>My Tasks</h1>
+
+                <p>
+                    Manage your tasks, priorities and deadlines.
+                </p>
+            </div>
+
+            <a
+                href="{{ url_for('auth.add_task') }}"
+                class="add-task-btn"
+            >
+                + Add Task
+            </a>
+
+        </div>
+
+
+        <!-- =========================
+             SEARCH / FILTER / SORT
+        ========================= -->
+
+        <div class="controls">
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search tasks..."
+            >
+
+            <select id="statusFilter">
+
+                <option value="all">
+                    All Status
+                </option>
+
+                <option value="Pending">
+                    Pending
+                </option>
+
+                <option value="Completed">
+                    Completed
+                </option>
+
+            </select>
+
+
+            <select id="priorityFilter">
+
+                <option value="all">
+                    All Priorities
+                </option>
+
+                <option value="High">
+                    High
+                </option>
+
+                <option value="Medium">
+                    Medium
+                </option>
+
+                <option value="Low">
+                    Low
+                </option>
+
+            </select>
+
+
+            <select id="sortSelect">
+
+                <option value="newest">
+                    Newest First
+                </option>
+
+                <option value="oldest">
+                    Oldest First
+                </option>
+
+                <option value="deadline">
+                    Deadline
+                </option>
+
+                <option value="priority">
+                    Priority
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- =========================
+             TASKS
+        ========================= -->
+
+        {% if tasks %}
+
+        <div class="tasks-container" id="tasksContainer">
+
+            {% for task in tasks %}
+
+            <div
+                class="task-card {% if task.status == 'Completed' %}completed{% endif %}"
+                data-title="{{ task.title|lower }}"
+                data-description="{{ task.description|default('', true)|lower }}"
+                data-status="{{ task.status }}"
+                data-priority="{{ task.priority }}"
+                data-created="{{ task.created_at.timestamp() if task.created_at else 0 }}"
+                data-deadline="{{ task.deadline.timestamp() if task.deadline else 0 }}"
+            >
+
+                <!-- TASK TITLE -->
+
+                <div class="task-title">
+                    {{ task.title }}
+                </div>
+
+
+                <!-- TASK DESCRIPTION -->
+
+                {% if task.description %}
+
+                <div class="task-description">
+                    {{ task.description }}
+                </div>
+
+                {% endif %}
+
+
+                <!-- TASK INFORMATION -->
+
+                <div class="task-info">
+
+                    <div class="info-row">
+
+                        <span class="info-label">
+                            Priority
+                        </span>
+
+                        {% if task.priority == "High" %}
+
+                        <span class="badge priority-high">
+                            High
+                        </span>
+
+                        {% elif task.priority == "Low" %}
+
+                        <span class="badge priority-low">
+                            Low
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge priority-medium">
+                            Medium
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <span class="info-label">
+                            Importance
+                        </span>
+
+                        <span>
+                            {{ task.importance }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <span class="info-label">
+                            Status
+                        </span>
+
+                        {% if task.status == "Completed" %}
+
+                        <span class="badge status-completed">
+                            Completed
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge status-pending">
+                            Pending
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <span class="info-label">
+                            Deadline
+                        </span>
+
+                        <span>
+                            {{ task.deadline.strftime('%d %b %Y, %I:%M %p') }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <span class="info-label">
+                            Deadline Risk
+                        </span>
+
+                        {% if task.deadline_risk == "High" %}
+
+                        <span class="badge risk-high">
+                            High
+                        </span>
+
+                        {% elif task.deadline_risk == "Medium" %}
+
+                        <span class="badge risk-medium">
+                            Medium
+                        </span>
+
+                        {% elif task.deadline_risk == "Low" %}
+
+                        <span class="badge risk-low">
+                            Low
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge risk-none">
+                            {{ task.deadline_risk }}
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    {% if task.reminder_at %}
+
+                    <div class="info-row">
+
+                        <span class="info-label">
+                            Reminder
+                        </span>
+
+                        <span>
+                            {{ task.reminder_at.strftime('%d %b %Y, %I:%M %p') }}
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- =========================
+                     ACTION BUTTONS
+                ========================= -->
+
+                <div class="task-actions">
+
+
+                    <!-- COMPLETE BUTTON -->
+
+                    {% if task.status != "Completed" %}
+
+                    <form
+                        action="{{ url_for('auth.complete_task', task_id=task.id) }}"
+                        method="POST"
+                        style="display: inline;"
+                    >
+
+                        <button
+                            type="submit"
+                            class="complete-btn"
+                        >
+                            ✓ Complete
+                        </button>
+
+                    </form>
+
+                    {% endif %}
+
+
+                    <!-- EDIT BUTTON -->
+
+                    <a
+                        href="{{ url_for('auth.edit_task', task_id=task.id) }}"
+                        class="edit-btn"
+                    >
+                        ✎ Edit
+                    </a>
+
+
+                    <!-- DELETE BUTTON -->
+
+                    <form
+                        action="{{ url_for('auth.delete_task', task_id=task.id) }}"
+                        method="POST"
+                        style="display: inline;"
+                        onsubmit="return confirm('Are you sure you want to delete this task?');"
+                    >
+
+                        <button
+                            type="submit"
+                            class="delete-btn"
+                        >
+                            🗑️ Delete
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- =========================
+             NO SEARCH RESULTS
+        ========================= -->
+
+        <div
+            id="noResults"
+            class="empty-state"
+            style="display: none;"
+        >
+
+            <div class="icon">
+                🔎
+            </div>
+
+            <h2>
+                No tasks found
+            </h2>
+
+            <p>
+                Try changing your search or filter.
+            </p>
+
+        </div>
+
+
+        {% else %}
+
+
+        <!-- =========================
+             NO TASKS
+        ========================= -->
+
+        <div class="empty-state">
+
+            <div class="icon">
+                🌷
+            </div>
+
+            <h2>
+                No tasks yet
+            </h2>
+
+            <p>
+                Start by adding your first task.
+            </p>
+
+            <a
+                href="{{ url_for('auth.add_task') }}"
+                class="add-task-btn"
+            >
+                + Add Your First Task
+            </a>
+
+        </div>
+
+        {% endif %}
+
+    </main>
+
+
+    <!-- =========================
+         SEARCH / FILTER / SORT JS
+    ========================= -->
+
+    <script>
+
+        const searchInput =
+            document.getElementById("searchInput");
+
+        const statusFilter =
+            document.getElementById("statusFilter");
+
+        const priorityFilter =
+            document.getElementById("priorityFilter");
+
+        const sortSelect =
+            document.getElementById("sortSelect");
+
+        const tasksContainer =
+            document.getElementById("tasksContainer");
+
+        const noResults =
+            document.getElementById("noResults");
+
+
+        function filterTasks() {
+
+            if (!tasksContainer) {
+                return;
+            }
+
+            const searchText =
+                searchInput.value.toLowerCase().trim();
+
+            const selectedStatus =
+                statusFilter.value;
+
+            const selectedPriority =
+                priorityFilter.value;
+
+            const cards =
+                Array.from(
+                    tasksContainer.querySelectorAll(".task-card")
+                );
+
+
+            let visibleCount = 0;
+
+
+            cards.forEach(function(card) {
+
+                const title =
+                    card.dataset.title || "";
+
+                const description =
+                    card.dataset.description || "";
+
+                const status =
+                    card.dataset.status || "";
+
+                const priority =
+                    card.dataset.priority || "";
+
+
+                const matchesSearch =
+                    title.includes(searchText) ||
+                    description.includes(searchText);
+
+
+                const matchesStatus =
+                    selectedStatus === "all" ||
+                    status === selectedStatus;
+
+
+                const matchesPriority =
+                    selectedPriority === "all" ||
+                    priority === selectedPriority;
+
+
+                if (
+                    matchesSearch &&
+                    matchesStatus &&
+                    matchesPriority
+                ) {
+
+                    card.style.display = "";
+
+                    visibleCount++;
+
+                } else {
+
+                    card.style.display = "none";
+
+                }
+
+            });
+
+
+            if (noResults) {
+
+                if (visibleCount === 0) {
+
+                    noResults.style.display = "block";
+
+                } else {
+
+                    noResults.style.display = "none";
+
+                }
+
+            }
+
+        }
+
+
+        function sortTasks() {
+
+            if (!tasksContainer) {
+                return;
+            }
+
+            const cards =
+                Array.from(
+                    tasksContainer.querySelectorAll(".task-card")
+                );
+
+
+            const sortValue =
+                sortSelect.value;
+
+
+            cards.sort(function(a, b) {
+
+                if (sortValue === "newest") {
+
+                    return (
+                        Number(b.dataset.created) -
+                        Number(a.dataset.created)
+                    );
+
+                }
+
+
+                if (sortValue === "oldest") {
+
+                    return (
+                        Number(a.dataset.created) -
+                        Number(b.dataset.created)
+                    );
+
+                }
+
+
+                if (sortValue === "deadline") {
+
+                    return (
+                        Number(a.dataset.deadline) -
+                        Number(b.dataset.deadline)
+                    );
+
+                }
+
+
+                if (sortValue === "priority") {
+
+                    const priorityOrder = {
+                        "High": 1,
+                        "Medium": 2,
+                        "Low": 3
+                    };
+
+                    return (
+                        priorityOrder[a.dataset.priority] -
+                        priorityOrder[b.dataset.priority]
+                    );
+
+                }
+
+                return 0;
+
+            });
+
+
+            cards.forEach(function(card) {
+
+                tasksContainer.appendChild(card);
+
+            });
+
+        }
+
+
+        if (searchInput) {
+
+            searchInput.addEventListener(
+                "input",
+                filterTasks
+            );
+
+        }
+
+
+        if (statusFilter) {
+
+            statusFilter.addEventListener(
+                "change",
+                filterTasks
+            );
+
+        }
+
+
+        if (priorityFilter) {
+
+            priorityFilter.addEventListener(
+                "change",
+                filterTasks
+            );
+
+        }
+
+
+        if (sortSelect) {
+
+            sortSelect.addEventListener(
+                "change",
+                function() {
+
+                    sortTasks();
+
+                    filterTasks();
+
+                }
+            );
+
+        }
+
+    </script>
+
+</body>
+</html>

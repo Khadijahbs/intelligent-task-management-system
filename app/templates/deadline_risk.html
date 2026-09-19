@@ -1,0 +1,571 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Deadline Risk | TaskFlow</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f5f2;
+            color: #4a403b;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            padding: 30px 25px 40px;
+        }
+
+        /* =========================
+           TOP BAR
+        ========================= */
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .heading {
+            flex: 1;
+        }
+
+        .heading h1 {
+            font-size: 30px;
+            color: #5c4a44;
+            margin-bottom: 8px;
+        }
+
+        .heading p {
+            color: #8a7770;
+            font-size: 14px;
+        }
+
+        /* =========================
+           NAVIGATION
+        ========================= */
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: #765e56;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 13px;
+            border-radius: 10px;
+            transition: 0.2s ease;
+        }
+
+        .nav-item:hover {
+            background: #eee3dd;
+        }
+
+        .nav-item.active {
+            background: #e9ddd7;
+            color: #5c4a44;
+        }
+
+        /* =========================
+           SUMMARY
+        ========================= */
+
+        .risk-summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: #fffdfb;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(80, 60, 50, 0.05);
+            border: 1px solid #eee3dd;
+        }
+
+        .summary-icon {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: #8a7770;
+            margin-bottom: 6px;
+        }
+
+        .summary-number {
+            font-size: 26px;
+            font-weight: 700;
+            color: #5c4a44;
+        }
+
+        /* =========================
+           SECTIONS
+        ========================= */
+
+        .section {
+            background: #fffdfb;
+            border-radius: 18px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(80, 60, 50, 0.05);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .high-title {
+            color: #9b4f47;
+        }
+
+        .medium-title {
+            color: #8a6a2f;
+        }
+
+        .low-title {
+            color: #52745a;
+        }
+
+        /* =========================
+           TASK CARDS
+        ========================= */
+
+        .task {
+            border: 1px solid #eee3dd;
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 15px;
+            background: #fff;
+        }
+
+        .task:last-child {
+            margin-bottom: 0;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+
+        .task-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #5c4a44;
+        }
+
+        .badge {
+            padding: 5px 11px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-high {
+            background: #f4d6d2;
+            color: #9b4f47;
+        }
+
+        .badge-medium {
+            background: #f3e6c8;
+            color: #8a6a2f;
+        }
+
+        .badge-low {
+            background: #dce9df;
+            color: #52745a;
+        }
+
+        .details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 13px;
+            color: #765e56;
+        }
+
+        .detail {
+            background: #f8f5f2;
+            padding: 7px 10px;
+            border-radius: 8px;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 20px;
+            color: #9a8982;
+            font-size: 14px;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 850px) {
+
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .nav {
+                justify-content: flex-start;
+                width: 100%;
+            }
+
+            .risk-summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .task-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .risk-summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .heading h1 {
+                font-size: 26px;
+            }
+        }
+
+        @media (max-width: 450px) {
+
+            .container {
+                padding: 25px 15px 35px;
+            }
+
+            .risk-summary {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .summary-card {
+                padding: 15px 10px;
+            }
+
+            .nav {
+                gap: 4px;
+            }
+
+            .nav-item {
+                padding: 8px 9px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+
+        <div class="heading">
+            <h1>Deadline Risk ⚠️</h1>
+            <p>
+                Monitor tasks that may require your attention before their deadlines.
+            </p>
+        </div>
+
+        <!-- NAVIGATION -->
+        <nav class="nav">
+
+            <a href="{{ url_for('auth.dashboard') }}" class="nav-item">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('auth.my_tasks') }}" class="nav-item">
+                My Tasks
+            </a>
+
+            <a href="{{ url_for('auth.productivity') }}" class="nav-item">
+                Productivity
+            </a>
+
+            <a href="{{ url_for('auth.calendar') }}" class="nav-item">
+                Calendar
+            </a>
+
+            <a href="{{ url_for('auth.deadline_risk') }}" class="nav-item active">
+                Deadline Risk
+            </a>
+
+        </nav>
+
+    </div>
+
+
+    <!-- RISK SUMMARY -->
+
+    <div class="risk-summary">
+
+        <div class="summary-card">
+            <div class="summary-icon">📊</div>
+            <div class="summary-label">Total Analyzed</div>
+            <div class="summary-number">
+                {{ total_tasks }}
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon">🔴</div>
+            <div class="summary-label">High Risk</div>
+            <div class="summary-number">
+                {{ high_risk_tasks | length }}
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon">🟡</div>
+            <div class="summary-label">Medium Risk</div>
+            <div class="summary-number">
+                {{ medium_risk_tasks | length }}
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon">🟢</div>
+            <div class="summary-label">Low Risk</div>
+            <div class="summary-number">
+                {{ low_risk_tasks | length }}
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- HIGH RISK -->
+
+    <div class="section">
+
+        <div class="section-title high-title">
+            🔴 High Risk Tasks
+        </div>
+
+        {% if high_risk_tasks %}
+
+            {% for task in high_risk_tasks %}
+
+            <div class="task">
+
+                <div class="task-header">
+
+                    <div class="task-title">
+                        {{ task.title }}
+                    </div>
+
+                    <span class="badge badge-high">
+                        HIGH RISK
+                    </span>
+
+                </div>
+
+                <div class="details">
+
+                    <div class="detail">
+                        📅 {{ task.deadline.strftime("%d %b %Y, %I:%M %p") }}
+                    </div>
+
+                    <div class="detail">
+                        💡 Why: {{ task.risk_reason }}
+                    </div>
+
+                    <div class="detail">
+                        Importance: {{ task.importance }}
+                    </div>
+
+                    <div class="detail">
+                        Priority: {{ task.priority }}
+                    </div>
+
+                    <div class="detail">
+                        Status: {{ task.status }}
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty">
+                🎉 No high-risk tasks at the moment.
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- MEDIUM RISK -->
+
+    <div class="section">
+
+        <div class="section-title medium-title">
+            🟡 Medium Risk Tasks
+        </div>
+
+        {% if medium_risk_tasks %}
+
+            {% for task in medium_risk_tasks %}
+
+            <div class="task">
+
+                <div class="task-header">
+
+                    <div class="task-title">
+                        {{ task.title }}
+                    </div>
+
+                    <span class="badge badge-medium">
+                        MEDIUM RISK
+                    </span>
+
+                </div>
+
+                <div class="details">
+
+                    <div class="detail">
+                        📅 {{ task.deadline.strftime("%d %b %Y, %I:%M %p") }}
+                    </div>
+
+                    <div class="detail">
+                        💡 Why: {{ task.risk_reason }}
+                    </div>
+
+                    <div class="detail">
+                        Importance: {{ task.importance }}
+                    </div>
+
+                    <div class="detail">
+                        Priority: {{ task.priority }}
+                    </div>
+
+                    <div class="detail">
+                        Status: {{ task.status }}
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty">
+                ✨ No medium-risk tasks at the moment.
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- LOW RISK -->
+
+    <div class="section">
+
+        <div class="section-title low-title">
+            🟢 Low Risk Tasks
+        </div>
+
+        {% if low_risk_tasks %}
+
+            {% for task in low_risk_tasks %}
+
+            <div class="task">
+
+                <div class="task-header">
+
+                    <div class="task-title">
+                        {{ task.title }}
+                    </div>
+
+                    <span class="badge badge-low">
+                        LOW RISK
+                    </span>
+
+                </div>
+
+                <div class="details">
+
+                    <div class="detail">
+                        📅 {{ task.deadline.strftime("%d %b %Y, %I:%M %p") }}
+                    </div>
+
+                    <div class="detail">
+                        💡 Why: {{ task.risk_reason }}
+                    </div>
+
+                    <div class="detail">
+                        Importance: {{ task.importance }}
+                    </div>
+
+                    <div class="detail">
+                        Priority: {{ task.priority }}
+                    </div>
+
+                    <div class="detail">
+                        Status: {{ task.status }}
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty">
+                🌷 No low-risk tasks at the moment.
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+</body>
+</html>
+```

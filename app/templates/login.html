@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>Login | TaskFlow</title>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: #f8f3ed;
+        color: #4b403b;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Soft decorative circles */
+    body::before,
+    body::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        z-index: 0;
+    }
+
+    body::before {
+        width: 300px;
+        height: 300px;
+        background: #ead6d2;
+        opacity: 0.45;
+        top: -120px;
+        left: -100px;
+    }
+
+    body::after {
+        width: 350px;
+        height: 350px;
+        background: #e7d8cf;
+        opacity: 0.4;
+        bottom: -160px;
+        right: -120px;
+    }
+
+    .login-container {
+        width: 100%;
+        max-width: 430px;
+        background: #fffdf9;
+        padding: 45px 40px;
+        border-radius: 28px;
+        box-shadow: 0 18px 45px rgba(91, 73, 65, 0.12);
+        position: relative;
+        z-index: 1;
+        border: 1px solid rgba(190, 157, 150, 0.2);
+    }
+
+    .logo {
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    .logo h1 {
+        font-size: 32px;
+        font-weight: 700;
+        color: #8f625f;
+        letter-spacing: -0.5px;
+    }
+
+    .logo span {
+        color: #b98b86;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #8b817b;
+        font-size: 14px;
+        margin-bottom: 35px;
+    }
+
+    .welcome {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .welcome h2 {
+        font-size: 23px;
+        color: #4b403b;
+        margin-bottom: 7px;
+    }
+
+    .welcome p {
+        font-size: 14px;
+        color: #938781;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #5a4b45;
+    }
+
+    input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1px solid #ded1cb;
+        border-radius: 13px;
+        background: #faf7f3;
+        color: #4b403b;
+        font-size: 15px;
+        outline: none;
+        transition: 0.25s ease;
+    }
+
+    input:focus {
+        border-color: #b98b86;
+        background: #fffdfb;
+        box-shadow: 0 0 0 3px rgba(185, 139, 134, 0.12);
+    }
+
+    input::placeholder {
+        color: #aaa09a;
+    }
+
+    .login-button {
+        width: 100%;
+        padding: 14px;
+        margin-top: 8px;
+        border: none;
+        border-radius: 13px;
+        background: #a97873;
+        color: white;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.25s ease;
+    }
+
+    .login-button:hover {
+        background: #8f625f;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px rgba(143, 98, 95, 0.2);
+    }
+
+    .register-text {
+        text-align: center;
+        margin-top: 25px;
+        font-size: 14px;
+        color: #8b817b;
+    }
+
+    .register-text a {
+        color: #9b6c68;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .register-text a:hover {
+        text-decoration: underline;
+    }
+
+    .sparkle {
+        text-align: center;
+        color: #b98b86;
+        font-size: 18px;
+        margin-bottom: 12px;
+    }
+
+    @media (max-width: 480px) {
+        .login-container {
+            padding: 35px 25px;
+            border-radius: 22px;
+        }
+
+        .logo h1 {
+            font-size: 28px;
+        }
+
+        .welcome h2 {
+            font-size: 21px;
+        }
+    }
+    .password-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .password-container input {
+        padding-right: 50px;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: auto;
+        margin: 0;
+        padding: 5px;
+        background: transparent;
+        color: #8b7d78;
+        font-size: 18px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .toggle-password:hover {
+        background: transparent;
+        color: #b76e79;
+        transform: translateY(-50%);
+    }
+
+
+
+</style>
+
+
+</head>
+
+<body>
+
+
+<div class="login-container">
+
+    <div class="sparkle">✦</div>
+
+    <div class="logo">
+        <h1>Task<span>Flow</span></h1>
+    </div>
+
+    <p class="subtitle">Plan smarter. Work better. Stay on track.</p>
+
+    <div class="welcome">
+        <h2>Welcome back 👋</h2>
+        <p>Log in to continue managing your tasks.</p>
+    </div>
+
+    <form method="POST">
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Enter your email"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+
+            <div class="password-container">
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                required
+            >
+
+        <button
+            type="button"
+            class="toggle-password"
+            onclick="togglePassword('password', this)"
+        >
+            👁️
+        </button>
+    </div>
+</div>
+
+
+
+        <button type="submit" class="login-button">
+            Login
+        </button>
+
+    </form>
+
+    <p class="register-text">
+        Don't have an account?
+        <a href="{{ url_for('auth.register') }}">Create one</a>
+    </p>
+
+</div>
+<script>
+    function togglePassword(inputId, button) {
+        const passwordInput = document.getElementById(inputId);
+
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            button.textContent = "🙈";
+        } else {
+            passwordInput.type = "password";
+            button.textContent = "👁️";
+        }
+    }
+</script>
+
+
+</body>
+</html>
