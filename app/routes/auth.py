@@ -22,7 +22,7 @@ from flask_login import (
     logout_user
 )
 
-from flask_mail import Message
+import os
 
 from app.models.user import db, User
 
@@ -71,157 +71,35 @@ def register():
 
             return "Email already registered."
 
+        # Hash password
         hashed_password = generate_password_hash(
             password
         )
 
-        # Generate a 6-digit OTP
-        import secrets
-
-        otp = str(
-            secrets.randbelow(900000) + 100000
-        )
+        # =========================
+        # CREATE USER
+        # =========================
 
         new_user = User(
             username=username,
             email=email,
             password=hashed_password,
             gender=gender,
-            is_verified=False,
-            otp_code=otp,
-            otp_created_at=datetime.utcnow()
+            is_verified=True
         )
 
         db.session.add(new_user)
         db.session.commit()
 
-        # Send OTP email
-        msg = Message(
-            subject=(
-                "Task Management System - "
-                "Email Verification"
-            ),
-            sender=current_app.config[
-                "MAIL_USERNAME"
-            ],
-            recipients=[email],
-            body=f"""Hello {username},
-
-Thank you for registering for the Intelligent Task Management System.
-
-Your email verification code is:
-
-{otp}
-
-Please enter this code on the verification page to verify your account.
-
-This code is valid for 10 minutes.
-
-If you did not create this account, please ignore this email.
-
-Regards,
-Intelligent Task Management System
-"""
-        )
-
-        current_app.extensions[
-            "mail"
-        ].send(msg)
-
-        return redirect(
-            url_for(
-                "auth.verify_otp",
-                email=email
-            )
-        )
-
-    return render_template(
-        "register.html"
-    )
-
-
-# =========================
-# VERIFY OTP
-# =========================
-@auth.route(
-    "/verify-otp",
-    methods=["GET", "POST"]
-)
-def verify_otp():
-
-    email = (
-        request.args.get("email")
-        or request.form.get("email")
-    )
-
-    if not email:
-
-        return redirect(
-            url_for("auth.register")
-        )
-
-    email = email.lower()
-
-    user = User.query.filter_by(
-        email=email
-    ).first()
-
-    if not user:
-
-        return "Account not found."
-
-    if request.method == "POST":
-
-        otp = request.form[
-            "otp"
-        ].strip()
-
-        if not user.otp_code:
-
-            return (
-                "No verification code found. "
-                "Please register again."
-            )
-
-        # Check OTP expiration
-        if not user.otp_created_at:
-
-            return (
-                "Verification code has expired."
-            )
-
-        elapsed_time = (
-            datetime.utcnow()
-            - user.otp_created_at
-        )
-
-        # OTP expires after 10 minutes
-        if elapsed_time.total_seconds() > 600:
-
-            return (
-                "Verification code has expired. "
-                "Please register again."
-            )
-
-        # Check OTP
-        if otp != user.otp_code:
-
-            return "Invalid verification code."
-
-        # Verify account
-        user.is_verified = True
-        user.otp_code = None
-        user.otp_created_at = None
-
-        db.session.commit()
+        # Registration is complete.
+        # No OTP or email verification is required.
 
         return redirect(
             url_for("auth.login")
         )
 
     return render_template(
-        "verify_otp.html",
-        email=email
+        "register.html"
     )
 
 
@@ -252,17 +130,6 @@ def login():
             user.password,
             password
         ):
-
-            # Prevent unverified users
-            # from logging in
-            if not user.is_verified:
-
-                return redirect(
-                    url_for(
-                        "auth.verify_otp",
-                        email=user.email
-                    )
-                )
 
             login_user(user)
 
@@ -880,7 +747,6 @@ def productivity():
         Task.created_at.asc()
     ).all()
 
-
     # =========================
     # OVERALL STATISTICS
     # =========================
@@ -902,7 +768,6 @@ def productivity():
         - completed_count
     )
 
-
     # =========================
     # OVERALL COMPLETION RATE
     # =========================
@@ -919,7 +784,6 @@ def productivity():
     else:
 
         completion_rate = 0
-
 
     # =========================
     # OVERALL ON-TIME RATE
@@ -949,7 +813,6 @@ def productivity():
 
         on_time_rate = 0
 
-
     # =========================
     # OVERALL PENDING RATE
     # =========================
@@ -966,7 +829,6 @@ def productivity():
     else:
 
         pending_rate = 0
-
 
     # =========================
     # MACHINE-LEARNING
@@ -990,7 +852,6 @@ def productivity():
             "Not enough data"
         )
 
-
     # =========================
     # PRODUCTIVITY SCORE
     # =========================
@@ -1000,7 +861,6 @@ def productivity():
             tasks
         )
     )
-
 
     # =========================
     # SELECT STATISTICS PERIOD
@@ -1019,22 +879,17 @@ def productivity():
 
         selected_period = "weekly"
 
-
     # =========================
     # CURRENT DATE AND TIME
     # =========================
 
     now = datetime.now()
 
-
     # =========================
     # DETERMINE PERIOD START
     # =========================
 
     if selected_period == "weekly":
-
-        # Start of current week:
-        # Monday at 12:00 AM
 
         period_start = (
             now - timedelta(
@@ -1049,10 +904,7 @@ def productivity():
 
         period_name = "This Week"
 
-
     elif selected_period == "monthly":
-
-        # First day of current month
 
         period_start = datetime(
             now.year,
@@ -1062,10 +914,7 @@ def productivity():
 
         period_name = "This Month"
 
-
     else:
-
-        # First day of current year
 
         period_start = datetime(
             now.year,
@@ -1074,7 +923,6 @@ def productivity():
         )
 
         period_name = "This Year"
-
 
     # =========================
     # FILTER TASKS FOR PERIOD
@@ -1094,7 +942,6 @@ def productivity():
 
     ]
 
-
     # =========================
     # PERIOD TOTAL TASKS
     # =========================
@@ -1102,7 +949,6 @@ def productivity():
     period_total = len(
         period_tasks
     )
-
 
     # =========================
     # PERIOD COMPLETED TASKS
@@ -1122,7 +968,6 @@ def productivity():
         period_completed_tasks
     )
 
-
     # =========================
     # PERIOD PENDING TASKS
     # =========================
@@ -1131,7 +976,6 @@ def productivity():
         period_total
         - period_completed
     )
-
 
     # =========================
     # PERIOD COMPLETION RATE
@@ -1149,7 +993,6 @@ def productivity():
     else:
 
         period_completion_rate = 0
-
 
     # =========================
     # PERIOD ON-TIME COMPLETION
@@ -1179,7 +1022,6 @@ def productivity():
 
         period_on_time_rate = 0
 
-
     # =========================
     # PERIOD PENDING RATE
     # =========================
@@ -1196,7 +1038,6 @@ def productivity():
     else:
 
         period_pending_rate = 0
-
 
     # =========================
     # DISPLAY PRODUCTIVITY PAGE
@@ -1628,15 +1469,11 @@ def profile_photo():
 
     if not upload_folder:
 
-        import os
-
         upload_folder = os.path.join(
             current_app.static_folder,
             "uploads",
             "profile_photos"
         )
-
-    import os
 
     os.makedirs(
         upload_folder,
@@ -1736,17 +1573,13 @@ def check_reminders():
             )
         })
 
-        # IMPORTANT:
-        # Do NOT set reminder_sent = True here.
-        #
-        # reminder_sent is reserved for automatic
-        # email reminders.
-        #
-        # APScheduler sets it to True only after
-        # the email is successfully sent.
+        # Mark the reminder as delivered
+        # so it will not appear again.
+        task.reminder_sent = True
 
-    # This route only displays
-    # due in-app notifications.
+    if due_tasks:
+
+        db.session.commit()
 
     return jsonify({
         "notifications": notifications
