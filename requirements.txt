@@ -1,6 +1,7 @@
 Flask
 Flask-SQLAlchemy
 Flask-Login
+Flask-Mail
 python-dotenv
 pandas
 scikit-learn

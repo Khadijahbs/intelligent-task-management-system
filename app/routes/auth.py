@@ -5,7 +5,8 @@ from flask import (
     redirect,
     url_for,
     current_app,
-    jsonify
+    jsonify,
+    session
 )
 
 from datetime import datetime, timedelta
@@ -22,7 +23,10 @@ from flask_login import (
     logout_user
 )
 
+from flask_mail import Message
+
 import os
+import random
 
 from app.models.user import db, User
 
@@ -53,27 +57,51 @@ def register():
         password = request.form["password"]
         gender = request.form["gender"]
 
-        # Gmail-only registration
+        # =========================
+        # GMAIL-ONLY REGISTRATION
+        # =========================
+
         if not email.endswith("@gmail.com"):
+
             return "Please use a valid Gmail address."
 
-        # Check if username already exists
+        # =========================
+        # CHECK USERNAME
+        # =========================
+
         if User.query.filter_by(
             username=username
         ).first():
 
             return "Username already exists."
 
-        # Check if email already exists
+        # =========================
+        # CHECK EMAIL
+        # =========================
+
         if User.query.filter_by(
             email=email
         ).first():
 
             return "Email already registered."
 
-        # Hash password
+        # =========================
+        # HASH PASSWORD
+        # =========================
+
         hashed_password = generate_password_hash(
             password
+        )
+
+        # =========================
+        # GENERATE OTP
+        # =========================
+
+        otp_code = str(
+            random.randint(
+                100000,
+                999999
+            )
         )
 
         # =========================
@@ -85,21 +113,340 @@ def register():
             email=email,
             password=hashed_password,
             gender=gender,
-            is_verified=True
+            is_verified=False,
+            otp_code=otp_code,
+            otp_created_at=datetime.now()
         )
 
         db.session.add(new_user)
         db.session.commit()
 
-        # Registration is complete.
-        # No OTP or email verification is required.
+        # =========================
+        # SEND VERIFICATION EMAIL
+        # =========================
+
+        try:
+
+            message = Message(
+                subject="Verify Your Intelligent Task Management Account",
+                recipients=[email]
+            )
+
+            message.body = f"""
+Hello {username},
+
+Thank you for registering for the Intelligent Task Management System.
+
+Your verification code is:
+
+{otp_code}
+
+This verification code will expire in 10 minutes.
+
+Please enter this code on the verification page to activate your account.
+
+If you did not create this account, you can ignore this email.
+
+Regards,
+Intelligent Task Management System
+"""
+
+            current_app.extensions[
+                "mail"
+            ].send(message)
+
+        except Exception as error:
+
+            print(
+                "EMAIL ERROR:",
+                error
+            )
+
+            # Remove the user if
+            # email delivery fails.
+            db.session.delete(
+                new_user
+            )
+
+            db.session.commit()
+
+            return (
+                "Unable to send verification email. "
+                "Please check the Gmail configuration "
+                "and try again."
+            )
+
+        # =========================
+        # STORE EMAIL IN SESSION
+        # =========================
+
+        session["verification_email"] = email
+
+        return redirect(
+            url_for(
+                "auth.verify"
+            )
+        )
+
+    return render_template(
+        "register.html"
+    )
+
+
+# =========================
+# VERIFY EMAIL
+# =========================
+@auth.route(
+    "/verify",
+    methods=["GET", "POST"]
+)
+def verify():
+
+    email = session.get(
+        "verification_email"
+    )
+
+    if not email:
+
+        return redirect(
+            url_for("auth.register")
+        )
+
+    user = User.query.filter_by(
+        email=email
+    ).first()
+
+    if not user:
+
+        session.pop(
+            "verification_email",
+            None
+        )
+
+        return redirect(
+            url_for("auth.register")
+        )
+
+    # =========================
+    # ALREADY VERIFIED
+    # =========================
+
+    if user.is_verified:
+
+        session.pop(
+            "verification_email",
+            None
+        )
+
+        return redirect(
+            url_for("auth.login")
+        )
+
+    # =========================
+    # VERIFY OTP
+    # =========================
+
+    if request.method == "POST":
+
+        entered_otp = request.form.get(
+            "otp",
+            ""
+        ).strip()
+
+        # =========================
+        # CHECK OTP
+        # =========================
+
+        if not entered_otp:
+
+            return render_template(
+                "verify.html",
+                email=email,
+                error_message=(
+                    "Please enter the verification code."
+                )
+            )
+
+        if entered_otp != user.otp_code:
+
+            return render_template(
+                "verify.html",
+                email=email,
+                error_message=(
+                    "Invalid verification code."
+                )
+            )
+
+        # =========================
+        # CHECK OTP EXPIRY
+        # =========================
+
+        if not user.otp_created_at:
+
+            return render_template(
+                "verify.html",
+                email=email,
+                error_message=(
+                    "Verification code is invalid. "
+                    "Please request a new code."
+                )
+            )
+
+        otp_expiry = (
+            user.otp_created_at
+            + timedelta(minutes=10)
+        )
+
+        if datetime.now() > otp_expiry:
+
+            return render_template(
+                "verify.html",
+                email=email,
+                error_message=(
+                    "Verification code has expired. "
+                    "Please request a new code."
+                )
+            )
+
+        # =========================
+        # VERIFY USER
+        # =========================
+
+        user.is_verified = True
+
+        user.otp_code = None
+
+        user.otp_created_at = None
+
+        db.session.commit()
+
+        # =========================
+        # CLEAR SESSION
+        # =========================
+
+        session.pop(
+            "verification_email",
+            None
+        )
 
         return redirect(
             url_for("auth.login")
         )
 
     return render_template(
-        "register.html"
+        "verify.html",
+        email=email
+    )
+
+
+# =========================
+# RESEND OTP
+# =========================
+@auth.route(
+    "/resend-otp",
+    methods=["POST"]
+)
+def resend_otp():
+
+    email = session.get(
+        "verification_email"
+    )
+
+    if not email:
+
+        return redirect(
+            url_for("auth.register")
+        )
+
+    user = User.query.filter_by(
+        email=email
+    ).first()
+
+    if not user:
+
+        return redirect(
+            url_for("auth.register")
+        )
+
+    if user.is_verified:
+
+        session.pop(
+            "verification_email",
+            None
+        )
+
+        return redirect(
+            url_for("auth.login")
+        )
+
+    # =========================
+    # GENERATE NEW OTP
+    # =========================
+
+    otp_code = str(
+        random.randint(
+            100000,
+            999999
+        )
+    )
+
+    user.otp_code = otp_code
+
+    user.otp_created_at = datetime.now()
+
+    db.session.commit()
+
+    # =========================
+    # SEND NEW OTP
+    # =========================
+
+    try:
+
+        message = Message(
+            subject="Your New Verification Code",
+            recipients=[email]
+        )
+
+        message.body = f"""
+Hello {user.username},
+
+Your new verification code is:
+
+{otp_code}
+
+This verification code will expire in 10 minutes.
+
+Regards,
+Intelligent Task Management System
+"""
+
+        current_app.extensions[
+            "mail"
+        ].send(message)
+
+    except Exception as error:
+
+        print(
+            "EMAIL ERROR:",
+            error
+        )
+
+        return render_template(
+            "verify.html",
+            email=email,
+            error_message=(
+                "Unable to resend the verification code. "
+                "Please try again."
+            )
+        )
+
+    return render_template(
+        "verify.html",
+        email=email,
+        success_message=(
+            "A new verification code has been sent "
+            "to your Gmail address."
+        )
     )
 
 
@@ -126,15 +473,37 @@ def login():
             email=email
         ).first()
 
+        # =========================
+        # CHECK LOGIN DETAILS
+        # =========================
+
         if user and check_password_hash(
             user.password,
             password
         ):
 
+            # =========================
+            # CHECK VERIFICATION
+            # =========================
+
+            if not user.is_verified:
+
+                session[
+                    "verification_email"
+                ] = user.email
+
+                return redirect(
+                    url_for(
+                        "auth.verify"
+                    )
+                )
+
             login_user(user)
 
             return redirect(
-                url_for("auth.dashboard")
+                url_for(
+                    "auth.dashboard"
+                )
             )
 
         return "Invalid email or password!"
@@ -1565,6 +1934,9 @@ def check_reminders():
 
     for task in due_tasks:
 
+        # =========================
+        # IN-APP NOTIFICATION
+        # =========================
         notifications.append({
             "title": task.title,
             "message": (
@@ -1573,9 +1945,42 @@ def check_reminders():
             )
         })
 
-        # Mark the reminder as delivered
-        # so it will not appear again.
-        task.reminder_sent = True
+        # =========================
+        # GMAIL REMINDER
+        # =========================
+        try:
+
+            message = Message(
+                subject=f"Task Reminder: {task.title}",
+                recipients=[current_user.email]
+            )
+
+            message.body = (
+                f"Hello {current_user.username},\n\n"
+                f"This is a reminder for your task:\n\n"
+                f"Task: {task.title}\n"
+                f"Priority: {task.priority}\n"
+                f"Importance: {task.importance}\n"
+                f"Deadline: {task.deadline.strftime('%d %B %Y, %I:%M %p')}\n\n"
+                f"Reminder: You planned to work on "
+                f"'{task.title}'.\n\n"
+                f"Please remember to complete your task before "
+                f"the deadline.\n\n"
+                f"Regards,\n"
+                f"Intelligent Task Management System"
+            )
+
+            current_app.extensions["mail"].send(message)
+
+            # Mark as sent only after the email is successfully sent
+            task.reminder_sent = True
+
+        except Exception as e:
+
+            print(
+                f"Failed to send reminder email for "
+                f"'{task.title}': {e}"
+            )
 
     if due_tasks:
 

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Verify Email</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f1e8;
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            padding: 20px;
+        }
+
+        .verification-container {
+            width: 100%;
+            max-width: 430px;
+
+            background: #fffaf3;
+
+            padding: 40px 35px;
+
+            border-radius: 20px;
+
+            box-shadow: 0 10px 30px rgba(80, 60, 40, 0.12);
+
+            text-align: center;
+        }
+
+        .icon {
+            width: 70px;
+            height: 70px;
+
+            margin: 0 auto 20px;
+
+            border-radius: 50%;
+
+            background: #ead8c5;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 32px;
+        }
+
+        h1 {
+            color: #4a3425;
+
+            font-size: 27px;
+
+            margin-bottom: 12px;
+        }
+
+        .description {
+            color: #756354;
+
+            font-size: 14px;
+
+            line-height: 1.6;
+
+            margin-bottom: 25px;
+        }
+
+        .email {
+            color: #4a3425;
+
+            font-weight: bold;
+        }
+
+        .message {
+            padding: 12px 15px;
+
+            border-radius: 10px;
+
+            margin-bottom: 18px;
+
+            font-size: 14px;
+        }
+
+        .error {
+            background: #f8dddd;
+
+            color: #8a3333;
+        }
+
+        .success {
+            background: #dfeedd;
+
+            color: #3f6d3f;
+        }
+
+        .otp-input {
+            width: 100%;
+
+            padding: 15px;
+
+            border: 1px solid #d7c5b3;
+
+            border-radius: 10px;
+
+            background: #fff;
+
+            color: #4a3425;
+
+            font-size: 24px;
+
+            text-align: center;
+
+            letter-spacing: 8px;
+
+            outline: none;
+
+            margin-bottom: 18px;
+        }
+
+        .otp-input:focus {
+            border-color: #9b7a5c;
+
+            box-shadow: 0 0 0 3px rgba(155, 122, 92, 0.12);
+        }
+
+        .verify-button {
+            width: 100%;
+
+            border: none;
+
+            padding: 14px;
+
+            border-radius: 10px;
+
+            background: #6f5139;
+
+            color: white;
+
+            font-size: 15px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+        .verify-button:hover {
+            background: #5d432f;
+        }
+
+        .resend-section {
+            margin-top: 22px;
+
+            color: #756354;
+
+            font-size: 14px;
+        }
+
+        .resend-button {
+            border: none;
+
+            background: none;
+
+            color: #6f5139;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            padding: 0;
+
+            font-size: 14px;
+        }
+
+        .resend-button:hover {
+            text-decoration: underline;
+        }
+
+        .back-login {
+            display: inline-block;
+
+            margin-top: 20px;
+
+            color: #6f5139;
+
+            text-decoration: none;
+
+            font-size: 14px;
+        }
+
+        .back-login:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .verification-container {
+                padding: 32px 24px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="verification-container">
+
+        <div class="icon">
+            ✉️
+        </div>
+
+        <h1>
+            Verify Your Email
+        </h1>
+
+        <p class="description">
+
+            We've sent a 6-digit verification code to
+
+            <span class="email">
+                {{ email }}
+            </span>.
+
+            <br>
+
+            Please enter the code below to activate your account.
+
+        </p>
+
+        {% if error_message %}
+
+            <div class="message error">
+                {{ error_message }}
+            </div>
+
+        {% endif %}
+
+        {% if success_message %}
+
+            <div class="message success">
+                {{ success_message }}
+            </div>
+
+        {% endif %}
+
+        <form
+            method="POST"
+            action="{{ url_for('auth.verify') }}"
+        >
+
+            <input
+                type="text"
+                name="otp"
+                class="otp-input"
+                placeholder="000000"
+                maxlength="6"
+                minlength="6"
+                pattern="[0-9]{6}"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                required
+            >
+
+            <button
+                type="submit"
+                class="verify-button"
+            >
+                Verify Email
+            </button>
+
+        </form>
+
+        <div class="resend-section">
+
+            Didn't receive the code?
+
+            <form
+                method="POST"
+                action="{{ url_for('auth.resend_otp') }}"
+                style="display: inline;"
+            >
+
+                <button
+                    type="submit"
+                    class="resend-button"
+                >
+                    Resend Code
+                </button>
+
+            </form>
+
+        </div>
+
+        <a
+            href="{{ url_for('auth.login') }}"
+            class="back-login"
+        >
+            ← Back to Login
+        </a>
+
+    </div>
+
+</body>
+
+</html>
