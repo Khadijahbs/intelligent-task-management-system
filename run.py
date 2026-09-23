@@ -14,6 +14,10 @@ from app.reminder_scheduler import send_due_reminders
 load_dotenv()
 
 
+# =========================
+# APPLICATION
+# =========================
+
 app = Flask(
     __name__,
     template_folder="app/templates"
@@ -29,9 +33,33 @@ app.config["SECRET_KEY"] = os.getenv(
     "development-secret-key"
 )
 
-app.config["SQLALCHEMY_DATABASE_URI"] = (
-    "sqlite:///tasks.db"
-)
+
+# =========================
+# DATABASE CONFIGURATION
+# =========================
+#
+# Vercel's deployed filesystem is read-only.
+# /tmp is writable on Vercel, but temporary.
+#
+# Local/Render:
+#     SQLite database is stored normally.
+#
+# Vercel:
+#     SQLite database is stored in /tmp.
+#
+
+if os.getenv("VERCEL") == "1":
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = (
+        "sqlite:////tmp/tasks.db"
+    )
+
+else:
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = (
+        "sqlite:///tasks.db"
+    )
+
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -128,12 +156,20 @@ with app.app_context():
 # =========================
 # BACKGROUND REMINDER SCHEDULER
 # =========================
+#
+# The continuous scheduler works locally/Render.
+#
+# It is disabled on Vercel because Vercel
+# Functions are serverless and should not run
+# an infinite background thread.
+#
 
 def reminder_loop():
 
     while True:
 
         try:
+
             send_due_reminders(app)
 
         except Exception as e:
@@ -142,20 +178,22 @@ def reminder_loop():
                 f"Reminder scheduler error: {e}"
             )
 
-        # Check for due reminders every 30 seconds
+        # Check every 30 seconds
         time.sleep(30)
 
 
-reminder_thread = threading.Thread(
-    target=reminder_loop,
-    daemon=True
-)
+if os.getenv("VERCEL") != "1":
 
-reminder_thread.start()
+    reminder_thread = threading.Thread(
+        target=reminder_loop,
+        daemon=True
+    )
+
+    reminder_thread.start()
 
 
 # =========================
-# RUN APPLICATION
+# RUN APPLICATION LOCALLY
 # =========================
 
 if __name__ == "__main__":
