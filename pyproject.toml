@@ -1,2 +1,19 @@
+[project]
+name = "intelligent-task-management-system"
+version = "1.0.0"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "Flask",
+    "Flask-SQLAlchemy",
+    "Flask-Login",
+    "Flask-Mail",
+    "python-dotenv",
+    "pandas",
+    "scikit-learn",
+    "joblib",
+    "Werkzeug",
+    "gunicorn"
+]
+
 [tool.vercel]
 entrypoint = "run:app"
