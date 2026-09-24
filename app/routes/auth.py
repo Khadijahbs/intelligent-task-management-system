@@ -128,7 +128,10 @@ def register():
         try:
 
             message = Message(
-                subject="Verify Your Intelligent Task Management Account",
+                subject=(
+                    "Verify Your Intelligent "
+                    "Task Management Account"
+                ),
                 recipients=[email]
             )
 
@@ -157,9 +160,21 @@ Intelligent Task Management System
 
         except Exception as error:
 
+            # Print detailed error to Vercel logs
             print(
-                "EMAIL ERROR:",
-                error
+                "========================================"
+            )
+            print(
+                "GMAIL VERIFICATION EMAIL ERROR"
+            )
+            print(
+                f"Error type: {type(error).__name__}"
+            )
+            print(
+                f"Error message: {str(error)}"
+            )
+            print(
+                "========================================"
             )
 
             # Remove the user if
@@ -180,7 +195,9 @@ Intelligent Task Management System
         # STORE EMAIL IN SESSION
         # =========================
 
-        session["verification_email"] = email
+        session[
+            "verification_email"
+        ] = email
 
         return redirect(
             url_for(
@@ -427,8 +444,19 @@ Intelligent Task Management System
     except Exception as error:
 
         print(
-            "EMAIL ERROR:",
-            error
+            "========================================"
+        )
+        print(
+            "GMAIL RESEND OTP ERROR"
+        )
+        print(
+            f"Error type: {type(error).__name__}"
+        )
+        print(
+            f"Error message: {str(error)}"
+        )
+        print(
+            "========================================"
         )
 
         return render_template(
@@ -540,7 +568,10 @@ def dashboard():
         Task.created_at.desc()
     ).all()
 
-    # Existing productivity score
+    # =========================
+    # PRODUCTIVITY SCORE
+    # =========================
+
     productivity_score = (
         calculate_productivity_score(
             tasks
@@ -548,7 +579,8 @@ def dashboard():
     )
 
     # =========================
-    # ML PRODUCTIVITY CLASSIFICATION
+    # ML PRODUCTIVITY
+    # CLASSIFICATION
     # =========================
 
     total_task_count = len(tasks)
@@ -568,8 +600,10 @@ def dashboard():
         - completed_task_count
     )
 
-    # Calculate completion rate
-    # and pending rate
+    # =========================
+    # COMPLETION RATE
+    # =========================
+
     if total_task_count > 0:
 
         completion_rate = (
@@ -587,7 +621,10 @@ def dashboard():
         completion_rate = 0
         pending_rate = 0
 
-    # Calculate on-time completion rate
+    # =========================
+    # ON-TIME COMPLETION RATE
+    # =========================
+
     if completed_task_count > 0:
 
         on_time_task_count = len([
@@ -610,8 +647,10 @@ def dashboard():
 
         on_time_rate = 0
 
-    # Only classify productivity when
-    # sufficient task history is available.
+    # =========================
+    # PRODUCTIVITY CLASSIFICATION
+    # =========================
+
     if completed_task_count >= 10:
 
         productivity_prediction = (
@@ -655,7 +694,7 @@ def dashboard():
     ).count()
 
     # =========================
-    # DYNAMIC TIME-BASED GREETING
+    # DYNAMIC TIME GREETING
     # =========================
 
     current_hour = datetime.now().hour
@@ -677,7 +716,7 @@ def dashboard():
         greeting = "Good night"
 
     # =========================
-    # GENDER-BASED GREETING ICON
+    # GENDER-BASED ICON
     # =========================
 
     if current_user.gender == "Female":
@@ -716,8 +755,6 @@ def my_tasks():
         Task.created_at.desc()
     ).all()
 
-    # Calculate deadline risk
-    # for each task
     for task in tasks:
 
         task.deadline_risk = (
@@ -780,8 +817,6 @@ def add_task():
                 "%Y-%m-%dT%H:%M"
             )
 
-            # Reminder should not be
-            # after the task deadline.
             if reminder_at > deadline:
 
                 return render_template(
@@ -792,8 +827,6 @@ def add_task():
                     )
                 )
 
-            # Reminder should not be
-            # in the past.
             if reminder_at < datetime.now():
 
                 return render_template(
@@ -805,7 +838,7 @@ def add_task():
                 )
 
         # =========================
-        # AUTOMATICALLY RECOMMEND PRIORITY
+        # AUTOMATIC PRIORITY
         # =========================
 
         recommended_priority = (
@@ -906,8 +939,6 @@ def edit_task(task_id):
                 "%Y-%m-%dT%H:%M"
             )
 
-            # Reminder cannot be
-            # after deadline
             if reminder_at > deadline:
 
                 return render_template(
@@ -919,8 +950,6 @@ def edit_task(task_id):
                     )
                 )
 
-            # Reminder cannot be
-            # in the past
             if reminder_at < datetime.now():
 
                 return render_template(
@@ -938,13 +967,10 @@ def edit_task(task_id):
 
         task.reminder_at = reminder_at
 
-        # Reset reminder status whenever
-        # the reminder is added or changed.
         task.reminder_sent = False
 
         # =========================
-        # AUTOMATICALLY RECALCULATE
-        # PRIORITY
+        # RECALCULATE PRIORITY
         # =========================
 
         task.priority = recommend_priority(
@@ -978,8 +1004,6 @@ def delete_task(task_id):
         task_id
     )
 
-    # Make sure the task belongs
-    # to the logged-in user
     if task.user_id != current_user.id:
 
         return "Unauthorized", 403
@@ -1007,8 +1031,6 @@ def complete_task(task_id):
         task_id
     )
 
-    # Make sure the task belongs
-    # to the logged-in user
     if task.user_id != current_user.id:
 
         return "Unauthorized", 403
@@ -1138,7 +1160,7 @@ def productivity():
     )
 
     # =========================
-    # OVERALL COMPLETION RATE
+    # COMPLETION RATE
     # =========================
 
     if total_tasks > 0:
@@ -1155,7 +1177,7 @@ def productivity():
         completion_rate = 0
 
     # =========================
-    # OVERALL ON-TIME RATE
+    # ON-TIME RATE
     # =========================
 
     if completed_count > 0:
@@ -1183,7 +1205,7 @@ def productivity():
         on_time_rate = 0
 
     # =========================
-    # OVERALL PENDING RATE
+    # PENDING RATE
     # =========================
 
     if total_tasks > 0:
@@ -1200,7 +1222,6 @@ def productivity():
         pending_rate = 0
 
     # =========================
-    # MACHINE-LEARNING
     # PRODUCTIVITY CLASSIFICATION
     # =========================
 
@@ -1232,7 +1253,7 @@ def productivity():
     )
 
     # =========================
-    # SELECT STATISTICS PERIOD
+    # SELECT PERIOD
     # =========================
 
     selected_period = request.args.get(
@@ -1294,7 +1315,7 @@ def productivity():
         period_name = "This Year"
 
     # =========================
-    # FILTER TASKS FOR PERIOD
+    # FILTER PERIOD TASKS
     # =========================
 
     period_tasks = [
@@ -1312,7 +1333,7 @@ def productivity():
     ]
 
     # =========================
-    # PERIOD TOTAL TASKS
+    # PERIOD TOTAL
     # =========================
 
     period_total = len(
@@ -1320,7 +1341,7 @@ def productivity():
     )
 
     # =========================
-    # PERIOD COMPLETED TASKS
+    # PERIOD COMPLETED
     # =========================
 
     period_completed_tasks = [
@@ -1338,7 +1359,7 @@ def productivity():
     )
 
     # =========================
-    # PERIOD PENDING TASKS
+    # PERIOD PENDING
     # =========================
 
     period_pending = (
@@ -1364,7 +1385,7 @@ def productivity():
         period_completion_rate = 0
 
     # =========================
-    # PERIOD ON-TIME COMPLETION
+    # PERIOD ON-TIME RATE
     # =========================
 
     if period_completed > 0:
@@ -1489,18 +1510,10 @@ def settings():
             current_user.username
         )
 
-        # =========================
-        # GET USERNAME
-        # =========================
-
         username = request.form.get(
             "username",
             ""
         ).strip()
-
-        # =========================
-        # VALIDATION
-        # =========================
 
         if not username:
 
@@ -1510,10 +1523,6 @@ def settings():
                     "Username cannot be empty."
                 )
             )
-
-        # =========================
-        # CHECK USERNAME
-        # =========================
 
         existing_username = User.query.filter(
             User.username == username,
@@ -1529,17 +1538,9 @@ def settings():
                 )
             )
 
-        # =========================
-        # UPDATE USERNAME
-        # =========================
-
         current_user.username = username
 
         db.session.commit()
-
-        # =========================
-        # SUCCESS MESSAGE
-        # =========================
 
         if old_username != username:
 
@@ -1558,10 +1559,6 @@ def settings():
             success_message=message
         )
 
-    # =========================
-    # GET SETTINGS PAGE
-    # =========================
-
     return render_template(
         "settings.html"
     )
@@ -1577,19 +1574,11 @@ def settings():
 @login_required
 def update_preferences():
 
-    # =========================
-    # EMAIL NOTIFICATIONS
-    # =========================
-
     current_user.email_notifications = (
         request.form.get(
             "email_notifications"
         ) == "on"
     )
-
-    # =========================
-    # TASK REMINDERS
-    # =========================
 
     current_user.task_reminders = (
         request.form.get(
@@ -1632,10 +1621,6 @@ def change_password():
         ""
     )
 
-    # =========================
-    # CHECK CURRENT PASSWORD
-    # =========================
-
     if not check_password_hash(
         current_user.password,
         current_password
@@ -1648,10 +1633,6 @@ def change_password():
             )
         )
 
-    # =========================
-    # CHECK NEW PASSWORD
-    # =========================
-
     if not new_password:
 
         return render_template(
@@ -1660,10 +1641,6 @@ def change_password():
                 "New password cannot be empty."
             )
         )
-
-    # =========================
-    # PASSWORD LENGTH
-    # =========================
 
     if len(new_password) < 8:
 
@@ -1675,10 +1652,6 @@ def change_password():
             )
         )
 
-    # =========================
-    # CONFIRM PASSWORD
-    # =========================
-
     if new_password != confirm_password:
 
         return render_template(
@@ -1687,10 +1660,6 @@ def change_password():
                 "New passwords do not match."
             )
         )
-
-    # =========================
-    # PREVENT SAME PASSWORD
-    # =========================
 
     if check_password_hash(
         current_user.password,
@@ -1705,10 +1674,6 @@ def change_password():
             )
         )
 
-    # =========================
-    # HASH NEW PASSWORD
-    # =========================
-
     current_user.password = (
         generate_password_hash(
             new_password
@@ -1716,10 +1681,6 @@ def change_password():
     )
 
     db.session.commit()
-
-    # =========================
-    # SUCCESS MESSAGE
-    # =========================
 
     return render_template(
         "settings.html",
@@ -1742,10 +1703,6 @@ def profile_photo():
     uploaded_file = request.files.get(
         "profile_photo"
     )
-
-    # =========================
-    # CHECK FILE
-    # =========================
 
     if not uploaded_file:
 
@@ -1891,19 +1848,11 @@ def profile_photo():
         file_path
     )
 
-    # =========================
-    # SAVE FILE NAME
-    # =========================
-
     current_user.profile_photo = (
         filename
     )
 
     db.session.commit()
-
-    # =========================
-    # SUCCESS MESSAGE
-    # =========================
 
     return render_template(
         "settings.html",
@@ -1937,6 +1886,7 @@ def check_reminders():
         # =========================
         # IN-APP NOTIFICATION
         # =========================
+
         notifications.append({
             "title": task.title,
             "message": (
@@ -1948,6 +1898,7 @@ def check_reminders():
         # =========================
         # GMAIL REMINDER
         # =========================
+
         try:
 
             message = Message(
@@ -1961,7 +1912,8 @@ def check_reminders():
                 f"Task: {task.title}\n"
                 f"Priority: {task.priority}\n"
                 f"Importance: {task.importance}\n"
-                f"Deadline: {task.deadline.strftime('%d %B %Y, %I:%M %p')}\n\n"
+                f"Deadline: "
+                f"{task.deadline.strftime('%d %B %Y, %I:%M %p')}\n\n"
                 f"Reminder: You planned to work on "
                 f"'{task.title}'.\n\n"
                 f"Please remember to complete your task before "
@@ -1970,16 +1922,30 @@ def check_reminders():
                 f"Intelligent Task Management System"
             )
 
-            current_app.extensions["mail"].send(message)
+            current_app.extensions[
+                "mail"
+            ].send(message)
 
-            # Mark as sent only after the email is successfully sent
+            # Mark as sent only after
+            # successful email delivery.
             task.reminder_sent = True
 
-        except Exception as e:
+        except Exception as error:
 
             print(
-                f"Failed to send reminder email for "
-                f"'{task.title}': {e}"
+                "========================================"
+            )
+            print(
+                f"GMAIL TASK REMINDER ERROR: {task.title}"
+            )
+            print(
+                f"Error type: {type(error).__name__}"
+            )
+            print(
+                f"Error message: {str(error)}"
+            )
+            print(
+                "========================================"
             )
 
     if due_tasks:
