@@ -9,7 +9,9 @@ from flask import (
     session
 )
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+
+WAT = timezone(timedelta(hours=1))
 
 from werkzeug.security import (
     generate_password_hash,
@@ -115,7 +117,7 @@ def register():
             gender=gender,
             is_verified=False,
             otp_code=otp_code,
-            otp_created_at=datetime.now()
+            otp_created_at=datetime.now(WAT).replace(tzinfo=None)
         )
 
         db.session.add(new_user)
@@ -314,7 +316,7 @@ def verify():
             + timedelta(minutes=10)
         )
 
-        if datetime.now() > otp_expiry:
+        if datetime.now(WAT).replace(tzinfo=None)> otp_expiry:
 
             return render_template(
                 "verify.html",
@@ -409,7 +411,7 @@ def resend_otp():
 
     user.otp_code = otp_code
 
-    user.otp_created_at = datetime.now()
+    user.otp_created_at = datetime.now(WAT).replace(tzinfo=None)
 
     db.session.commit()
 
@@ -750,7 +752,7 @@ def dashboard():
     # DYNAMIC TIME GREETING
     # =========================
 
-    current_hour = datetime.now().hour
+    current_hour = datetime.now(WAT).replace(tzinfo=None).hour
 
     if current_hour < 12:
 
@@ -880,7 +882,7 @@ def add_task():
                     )
                 )
 
-            if reminder_at < datetime.now():
+            if reminder_at < datetime.now(WAT).replace(tzinfo=None):
 
                 return render_template(
                     "add_task.html",
@@ -1003,7 +1005,7 @@ def edit_task(task_id):
                     )
                 )
 
-            if reminder_at < datetime.now():
+            if reminder_at < datetime.now(WAT).replace(tzinfo=None):
 
                 return render_template(
                     "edit_task.html",
@@ -1090,7 +1092,7 @@ def complete_task(task_id):
 
     task.status = "Completed"
 
-    task.completed_at = datetime.utcnow()
+    task.completed_at = datetime.now(WAT).replace(tzinfo=None)
 
     db.session.commit()
 
@@ -1326,7 +1328,7 @@ def productivity():
     # CURRENT DATE AND TIME
     # =========================
 
-    now = datetime.now()
+    now = datetime.now(WAT).replace(tzinfo=None)
 
     # =========================
     # DETERMINE PERIOD START
@@ -1922,7 +1924,7 @@ def profile_photo():
 @login_required
 def check_reminders():
 
-    now = datetime.now()
+    now = datetime.now(WAT).replace(tzinfo=None)
 
     # =========================
     # FIND DUE TASKS
