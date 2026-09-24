@@ -489,52 +489,105 @@ def login():
 
     if request.method == "POST":
 
-        email = request.form[
-            "email"
-        ].strip().lower()
+        email = request.form.get(
+            "email",
+            ""
+        ).strip().lower()
 
-        password = request.form[
-            "password"
-        ]
+        password = request.form.get(
+            "password",
+            ""
+        )
+
+        # =========================
+        # LOGIN DIAGNOSTICS
+        # =========================
+
+        print("========================================")
+        print("LOGIN ATTEMPT")
+        print("Email entered:", email)
+        print("Password received:", bool(password))
+        print("========================================")
+
+        # =========================
+        # FIND USER
+        # =========================
 
         user = User.query.filter_by(
             email=email
         ).first()
 
-        # =========================
-        # CHECK LOGIN DETAILS
-        # =========================
+        print("User found:", user is not None)
 
-        if user and check_password_hash(
-            user.password,
-            password
-        ):
+        if user:
+
+            print("Username:", user.username)
+            print("User verified:", user.is_verified)
+            print(
+                "Password hash exists:",
+                bool(user.password)
+            )
 
             # =========================
-            # CHECK VERIFICATION
+            # CHECK PASSWORD
             # =========================
 
-            if not user.is_verified:
+            password_correct = check_password_hash(
+                user.password,
+                password
+            )
 
-                session[
-                    "verification_email"
-                ] = user.email
+            print(
+                "Password correct:",
+                password_correct
+            )
 
-                return redirect(
-                    url_for(
-                        "auth.verify"
-                    )
-                )
+        else:
 
-            login_user(user)
+            password_correct = False
+
+        print("========================================")
+
+        # =========================
+        # INVALID LOGIN
+        # =========================
+
+        if not user or not password_correct:
+
+            return "Invalid email or password!"
+
+        # =========================
+        # CHECK VERIFICATION
+        # =========================
+
+        if not user.is_verified:
+
+            session[
+                "verification_email"
+            ] = user.email
 
             return redirect(
                 url_for(
-                    "auth.dashboard"
+                    "auth.verify"
                 )
             )
 
-        return "Invalid email or password!"
+        # =========================
+        # LOGIN USER
+        # =========================
+
+        login_user(user)
+
+        print(
+            "LOGIN SUCCESSFUL:",
+            user.email
+        )
+
+        return redirect(
+            url_for(
+                "auth.dashboard"
+            )
+        )
 
     return render_template(
         "login.html"
