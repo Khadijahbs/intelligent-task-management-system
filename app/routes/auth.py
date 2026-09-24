@@ -1871,6 +1871,10 @@ def check_reminders():
 
     now = datetime.now()
 
+    # =========================
+    # FIND DUE TASKS
+    # =========================
+
     due_tasks = Task.query.filter(
         Task.user_id == current_user.id,
         Task.reminder_at.isnot(None),
@@ -1879,7 +1883,35 @@ def check_reminders():
         Task.status != "Completed"
     ).all()
 
+    # =========================
+    # REMINDER DIAGNOSTICS
+    # =========================
+
+    print("========================================")
+    print("REMINDER CHECK")
+    print("Current server time:", now)
+    print("Current user:", current_user.email)
+    print("Due tasks found:", len(due_tasks))
+    print("========================================")
+
+    for task in due_tasks:
+
+        print(
+            "Due task:",
+            task.title,
+            "| Reminder time:",
+            task.reminder_at,
+            "| Reminder sent:",
+            task.reminder_sent,
+            "| Status:",
+            task.status
+        )
+
     notifications = []
+
+    # =========================
+    # PROCESS DUE TASKS
+    # =========================
 
     for task in due_tasks:
 
@@ -1900,6 +1932,11 @@ def check_reminders():
         # =========================
 
         try:
+
+            print(
+                f"Attempting to send Gmail reminder "
+                f"for: {task.title}"
+            )
 
             message = Message(
                 subject=f"Task Reminder: {task.title}",
@@ -1926,31 +1963,51 @@ def check_reminders():
                 "mail"
             ].send(message)
 
+            # =========================
+            # EMAIL SENT SUCCESSFULLY
+            # =========================
+
+            print(
+                f"GMAIL REMINDER SENT SUCCESSFULLY: "
+                f"{task.title}"
+            )
+
             # Mark as sent only after
             # successful email delivery.
             task.reminder_sent = True
 
         except Exception as error:
 
+            import traceback
+
+            print("========================================")
             print(
-                "========================================"
+                f"GMAIL TASK REMINDER ERROR: "
+                f"{task.title}"
             )
             print(
-                f"GMAIL TASK REMINDER ERROR: {task.title}"
+                f"Error type: "
+                f"{type(error).__name__}"
             )
             print(
-                f"Error type: {type(error).__name__}"
+                f"Error message: "
+                f"{repr(error)}"
             )
-            print(
-                f"Error message: {str(error)}"
-            )
-            print(
-                "========================================"
-            )
+            print("Full traceback:")
+            traceback.print_exc()
+            print("========================================")
+
+    # =========================
+    # SAVE CHANGES
+    # =========================
 
     if due_tasks:
 
         db.session.commit()
+
+    # =========================
+    # RETURN RESPONSE
+    # =========================
 
     return jsonify({
         "notifications": notifications
