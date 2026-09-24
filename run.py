@@ -10,70 +10,50 @@ from app.models.user import db, User
 from app.routes.auth import auth
 from app.reminder_scheduler import send_due_reminders
 
-
 load_dotenv()
-
-
-# =========================
-# APPLICATION
-# =========================
 
 app = Flask(
     __name__,
     template_folder="app/templates"
 )
 
-
-# =========================
-# APPLICATION CONFIGURATION
-# =========================
-
 app.config["SECRET_KEY"] = os.getenv(
     "SECRET_KEY",
     "development-secret-key"
 )
 
-
-# =========================
+# ---------------------------------------
 # DATABASE CONFIGURATION
-# =========================
-#
-# Vercel's deployed filesystem is read-only.
-# /tmp is writable on Vercel, but temporary.
-#
-# Local/Render:
-#     SQLite database is stored normally.
-#
-# Vercel:
-#     SQLite database is stored in /tmp.
-#
+# ---------------------------------------
 
-if os.getenv("VERCEL") == "1":
+database_url = os.getenv("DATABASE_URL")
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = (
-        "sqlite:////tmp/tasks.db"
-    )
+if database_url:
+    # Make sure SQLAlchemy accepts older postgres:// URLs
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace(
+            "postgres://",
+            "postgresql://",
+            1
+        )
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 
 else:
-
+    # Local development continues to use SQLite
     app.config["SQLALCHEMY_DATABASE_URI"] = (
         "sqlite:///tasks.db"
     )
 
-
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-
-# =========================
-# GMAIL CONFIGURATION
-# =========================
+# ---------------------------------------
+# MAIL CONFIGURATION
+# ---------------------------------------
 
 app.config["MAIL_SERVER"] = "smtp.gmail.com"
-
 app.config["MAIL_PORT"] = 465
-
 app.config["MAIL_USE_SSL"] = True
-
 app.config["MAIL_USE_TLS"] = False
 
 app.config["MAIL_USERNAME"] = os.getenv(
@@ -88,88 +68,56 @@ app.config["MAIL_DEFAULT_SENDER"] = os.getenv(
     "MAIL_USERNAME"
 )
 
-
-# =========================
-# FLASK-MAIL
-# =========================
-
 mail = Mail()
-
 mail.init_app(app)
 
-
-# =========================
+# ---------------------------------------
 # LOGIN MANAGER
-# =========================
+# ---------------------------------------
 
 login_manager = LoginManager()
-
 login_manager.init_app(app)
-
 login_manager.login_view = "auth.login"
 
 
 @login_manager.user_loader
 def load_user(user_id):
-
     return db.session.get(
         User,
         int(user_id)
     )
 
 
-# =========================
-# DATABASE
-# =========================
+# ---------------------------------------
+# DATABASE INITIALISATION
+# ---------------------------------------
 
 db.init_app(app)
-
-
-# =========================
-# BLUEPRINTS
-# =========================
 
 app.register_blueprint(auth)
 
 
-# =========================
-# HOME ROUTE
-# =========================
-
 @app.route("/")
 def home():
-
     return redirect(
         url_for("auth.login")
     )
 
 
-# =========================
-# CREATE DATABASE TABLES
-# =========================
-
+# Create database tables automatically
 with app.app_context():
-
     db.create_all()
 
 
-# =========================
-# BACKGROUND REMINDER SCHEDULER
-# =========================
-#
-# The continuous scheduler works locally/Render.
-#
-# It is disabled on Vercel because Vercel
-# Functions are serverless and should not run
-# an infinite background thread.
-#
+# ---------------------------------------
+# REMINDER SCHEDULER
+# ---------------------------------------
 
 def reminder_loop():
 
     while True:
 
         try:
-
             send_due_reminders(app)
 
         except Exception as e:
@@ -178,10 +126,12 @@ def reminder_loop():
                 f"Reminder scheduler error: {e}"
             )
 
-        # Check every 30 seconds
         time.sleep(30)
 
 
+# Run background reminders locally.
+# Vercel uses serverless functions, so the
+# background thread is disabled there.
 if os.getenv("VERCEL") != "1":
 
     reminder_thread = threading.Thread(
@@ -192,9 +142,9 @@ if os.getenv("VERCEL") != "1":
     reminder_thread.start()
 
 
-# =========================
-# RUN APPLICATION LOCALLY
-# =========================
+# ---------------------------------------
+# RUN APPLICATION
+# ---------------------------------------
 
 if __name__ == "__main__":
 

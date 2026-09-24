@@ -12,7 +12,8 @@ dependencies = [
     "scikit-learn",
     "joblib",
     "Werkzeug",
-    "gunicorn"
+    "gunicorn",
+    "psycopg2-binary"
 ]
 
 [tool.vercel]
