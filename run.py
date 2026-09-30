@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, jsonify, request
 from dotenv import load_dotenv
 from flask_login import LoginManager
 from flask_mail import Mail
@@ -118,13 +118,87 @@ def home():
     )
 
 
+# ---------------------------------------
+# SECURE REMINDER ENDPOINT
+# ---------------------------------------
+
+@app.route(
+    "/api/cron/reminders",
+    methods=["GET"]
+)
+def cron_reminders():
+
+    cron_secret = os.getenv(
+        "CRON_SECRET"
+    )
+
+    authorization = request.headers.get(
+        "Authorization",
+        ""
+    )
+
+    expected_authorization = (
+        f"Bearer {cron_secret}"
+    )
+
+    if (
+        not cron_secret
+        or authorization != expected_authorization
+    ):
+        return jsonify({
+            "error": "Unauthorized"
+        }), 401
+
+    try:
+
+        send_due_reminders(app)
+
+        return jsonify({
+            "success": True,
+            "message": (
+                "Due reminders checked successfully."
+            )
+        }), 200
+
+    except Exception as error:
+
+        import traceback
+
+        print(
+            "========================================"
+        )
+
+        print(
+            "CRON REMINDER ERROR:"
+        )
+
+        print(
+            f"Error type: {type(error).__name__}"
+        )
+
+        print(
+            f"Error message: {repr(error)}"
+        )
+
+        traceback.print_exc()
+
+        print(
+            "========================================"
+        )
+
+        return jsonify({
+            "success": False,
+            "error": "Reminder processing failed."
+        }), 500
+
+
 # Create database tables automatically
 with app.app_context():
     db.create_all()
 
 
 # ---------------------------------------
-# REMINDER SCHEDULER
+# LOCAL REMINDER SCHEDULER
 # ---------------------------------------
 
 def reminder_loop():
