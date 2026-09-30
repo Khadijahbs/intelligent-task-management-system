@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -931,8 +932,6 @@
                 </a>
             </li>
 
-            <!-- LOGOUT -->
-
             <li class="logout-item">
 
                 <a href="{{ url_for('auth.logout') }}">
@@ -973,9 +972,7 @@
             {% if success_message %}
 
                 <div class="flash-message success">
-
                     ✓ {{ success_message }}
-
                 </div>
 
             {% endif %}
@@ -984,9 +981,7 @@
             {% if error_message %}
 
                 <div class="flash-message error">
-
                     ⚠️ {{ error_message }}
-
                 </div>
 
             {% endif %}
@@ -997,9 +992,7 @@
                 {% for category, message in messages %}
 
                     <div class="flash-message {{ category }}">
-
                         {{ message }}
-
                     </div>
 
                 {% endfor %}
@@ -1032,8 +1025,10 @@
 
                     {% if current_user.profile_photo %}
 
+                        <!-- PUBLIC VERCEL BLOB URL -->
+
                         <img
-                            src="{{ url_for('static', filename='uploads/profile_photos/' ~ current_user.profile_photo) }}"
+                            src="{{ current_user.profile_photo }}"
                             alt="Profile Photo"
                         >
 
@@ -1444,8 +1439,10 @@
 
                     {% if current_user.profile_photo %}
 
+                        <!-- PUBLIC VERCEL BLOB URL -->
+
                         <img
-                            src="{{ url_for('static', filename='uploads/profile_photos/' ~ current_user.profile_photo) }}"
+                            src="{{ current_user.profile_photo }}"
                             alt="Current Profile Photo"
                         >
 
@@ -1710,15 +1707,12 @@
             const button =
                 document.getElementById("editUsernameBtn");
 
-
             form.classList.add("show");
 
             button.style.display = "none";
 
-
             const input =
                 form.querySelector(".username-input");
-
 
             input.focus();
 
@@ -1734,7 +1728,6 @@
 
             const button =
                 document.getElementById("editUsernameBtn");
-
 
             form.classList.remove("show");
 
@@ -1755,15 +1748,12 @@
             const button =
                 document.getElementById("changePasswordBtn");
 
-
             form.classList.add("show");
 
             button.style.display = "none";
 
-
             const input =
                 document.getElementById("current_password");
-
 
             input.focus();
 
@@ -1778,14 +1768,11 @@
             const button =
                 document.getElementById("changePasswordBtn");
 
-
             form.classList.remove("show");
 
             button.style.display = "block";
 
-
             form.reset();
-
 
             resetPasswordButtons();
 
@@ -1800,7 +1787,6 @@
 
             const input =
                 document.getElementById(inputId);
-
 
             if (input.type === "password") {
 
@@ -1824,7 +1810,6 @@
             const buttons =
                 document.querySelectorAll(".toggle-password");
 
-
             buttons.forEach(function(button) {
 
                 button.textContent = "Show";
@@ -1845,7 +1830,6 @@
 
             const display =
                 document.getElementById("selectedFileName");
-
 
             if (input.files.length > 0) {
 

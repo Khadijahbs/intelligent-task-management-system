@@ -13,7 +13,8 @@ dependencies = [
     "joblib",
     "Werkzeug",
     "gunicorn",
-    "psycopg2-binary"
+    "psycopg2-binary",
+    "vercel"
 ]
 
 [tool.vercel]

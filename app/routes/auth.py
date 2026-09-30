@@ -1745,9 +1745,6 @@ def change_password():
     )
 
 
-# =========================
-# PROFILE PHOTO
-# =========================
 @auth.route(
     "/profile-photo",
     methods=["POST"]
@@ -1760,7 +1757,6 @@ def profile_photo():
     )
 
     if not uploaded_file:
-
         return render_template(
             "settings.html",
             error_message=(
@@ -1769,7 +1765,6 @@ def profile_photo():
         )
 
     if not uploaded_file.filename:
-
         return render_template(
             "settings.html",
             error_message=(
@@ -1790,7 +1785,6 @@ def profile_photo():
     }
 
     if "." not in uploaded_file.filename:
-
         return render_template(
             "settings.html",
             error_message=(
@@ -1806,7 +1800,6 @@ def profile_photo():
     )
 
     if extension not in allowed_extensions:
-
         return render_template(
             "settings.html",
             error_message=(
@@ -1819,10 +1812,7 @@ def profile_photo():
     # CHECK FILE SIZE
     # =========================
 
-    uploaded_file.seek(
-        0,
-        2
-    )
+    uploaded_file.seek(0, 2)
 
     file_size = uploaded_file.tell()
 
@@ -1830,7 +1820,6 @@ def profile_photo():
 
     # Maximum 2 MB
     if file_size > 2 * 1024 * 1024:
-
         return render_template(
             "settings.html",
             error_message=(
@@ -1839,83 +1828,139 @@ def profile_photo():
         )
 
     # =========================
-    # CREATE UPLOAD FOLDER
+    # UPLOAD TO PUBLIC VERCEL BLOB
     # =========================
 
-    upload_folder = (
-        current_app.config.get(
-            "PROFILE_PHOTO_FOLDER"
-        )
-    )
+    temp_path = None
 
-    if not upload_folder:
+    try:
 
-        upload_folder = os.path.join(
-            current_app.static_folder,
-            "uploads",
-            "profile_photos"
-        )
+        import os
+        from vercel import blob
 
-    os.makedirs(
-        upload_folder,
-        exist_ok=True
-    )
-
-    # =========================
-    # CREATE UNIQUE FILE NAME
-    # =========================
-
-    filename = (
-        f"user_{current_user.id}"
-        f"_profile.{extension}"
-    )
-
-    file_path = os.path.join(
-        upload_folder,
-        filename
-    )
-
-    # =========================
-    # DELETE OLD PHOTO
-    # =========================
-
-    if current_user.profile_photo:
-
-        old_photo_path = os.path.join(
-            upload_folder,
-            current_user.profile_photo
+        # Vercel's /tmp directory is writable.
+        temp_path = (
+            f"/tmp/"
+            f"user_{current_user.id}_profile."
+            f"{extension}"
         )
 
-        if (
-            os.path.exists(old_photo_path)
-            and old_photo_path != file_path
-        ):
+        uploaded_file.save(temp_path)
 
-            os.remove(
-                old_photo_path
+        # Unique pathname prevents conflicts when
+        # the user uploads a new photo later.
+        blob_path = (
+            f"profile/user_{current_user.id}_profile"
+        )
+
+        # Use the read-write token created for
+        # the PUBLIC_BLOB connection.
+        blob_token = os.getenv(
+            "PUBLIC_BLOB_READ_WRITE_TOKEN"
+        )
+
+        if not blob_token:
+            raise RuntimeError(
+                "PUBLIC_BLOB_READ_WRITE_TOKEN "
+                "is not configured."
             )
 
-    # =========================
-    # SAVE NEW PHOTO
-    # =========================
-
-    uploaded_file.save(
-        file_path
-    )
-
-    current_user.profile_photo = (
-        filename
-    )
-
-    db.session.commit()
-
-    return render_template(
-        "settings.html",
-        success_message=(
-            "Profile photo updated successfully."
+        uploaded_blob = blob.upload_file(
+            local_path=temp_path,
+            path=f"{blob_path}.{extension}",
+            access="public",
+            token=blob_token
         )
-    )
 
+        # =========================
+        # SAVE PUBLIC BLOB URL
+        # =========================
+
+        current_user.profile_photo = (
+            uploaded_blob.url
+        )
+
+        db.session.commit()
+
+        print(
+            "========================================"
+        )
+
+        print(
+            "PROFILE PHOTO UPLOAD SUCCESSFUL"
+        )
+
+        print(
+            f"User: {current_user.username}"
+        )
+
+        print(
+            f"Blob URL: {uploaded_blob.url}"
+        )
+
+        print(
+            "========================================"
+        )
+
+        return render_template(
+            "settings.html",
+            success_message=(
+                "Profile photo updated successfully."
+            )
+        )
+
+    except Exception as error:
+
+        import traceback
+
+        print(
+            "========================================"
+        )
+
+        print(
+            "PROFILE PHOTO UPLOAD ERROR:"
+        )
+
+        print(
+            f"Error type: {type(error).__name__}"
+        )
+
+        print(
+            f"Error message: {repr(error)}"
+        )
+
+        print(
+            "Full traceback:"
+        )
+
+        traceback.print_exc()
+
+        print(
+            "========================================"
+        )
+
+        return render_template(
+            "settings.html",
+            error_message=(
+                "Unable to upload profile photo. "
+                "Please try again."
+            )
+        )
+
+    finally:
+
+        # Remove temporary file after upload.
+        if temp_path:
+
+            try:
+
+                import os
+
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
+
+            except Exception:
+                pass
 
 # =========================
 # CHECK REMINDERS
