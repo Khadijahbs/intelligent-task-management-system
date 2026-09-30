@@ -29,7 +29,9 @@ app.config["SECRET_KEY"] = os.getenv(
 database_url = os.getenv("DATABASE_URL")
 
 if database_url:
-    # Make sure SQLAlchemy accepts older postgres:// URLs
+
+    # Make sure SQLAlchemy accepts older
+    # postgres:// URLs
     if database_url.startswith("postgres://"):
         database_url = database_url.replace(
             "postgres://",
@@ -37,9 +39,21 @@ if database_url:
             1
         )
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+    # Explicitly use psycopg2 because the
+    # project uses psycopg2-binary
+    if database_url.startswith("postgresql://"):
+        database_url = database_url.replace(
+            "postgresql://",
+            "postgresql+psycopg2://",
+            1
+        )
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = (
+        database_url
+    )
 
 else:
+
     # Local development continues to use SQLite
     app.config["SQLALCHEMY_DATABASE_URI"] = (
         "sqlite:///tasks.db"
